@@ -1,0 +1,35 @@
+/* Dashboard.module.css */
+.pageTitle   { font-size: 22px; font-weight: 800; margin-bottom: 20px; }
+.loading     { display: flex; justify-content: center; padding: 48px; }
+.statsGrid   { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 20px; }
+@media (max-width: 1024px) { .statsGrid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 640px)  { .statsGrid { grid-template-columns: 1fr; } }
+
+.statCard    { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; display: flex; align-items: flex-start; gap: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.statIcon    { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.statLabel   { font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: .5px; }
+.statValue   { font-size: 24px; font-weight: 800; }
+.statSub     { font-size: 11px; color: #718096; margin-top: 2px; }
+
+.card        { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.cardHeader  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cardTitle   { font-weight: 700; font-size: 14px; }
+.badge       { display: inline-flex; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+
+.progressBar { background: #e2e8f0; border-radius: 999px; height: 8px; overflow: hidden; }
+.progressFill{ height: 100%; border-radius: 999px; transition: width .5s ease; }
+.progressLabel { font-size: 12px; color: #718096; margin-top: 6px; }
+
+.dashGrid    { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+@media (max-width: 900px) { .dashGrid { grid-template-columns: 1fr; } }
+
+.alertBanner { border-left: 4px solid #3b82d4; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 8px; }
+
+.taskRow     { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+.taskRow:last-child { border-bottom: none; }
+.taskBar     { width: 4px; height: 36px; border-radius: 4px; flex-shrink: 0; }
+
+.pomPhase    { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+.btnPrimary  { padding: 7px 16px; background: #3b82d4; color: #fff; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; }
+.btnPrimary:disabled { opacity: .6; cursor: default; }
+.btnOutline  { padding: 7px 16px; background: transparent; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 600; font-size: 13px; color: #1a202c; }

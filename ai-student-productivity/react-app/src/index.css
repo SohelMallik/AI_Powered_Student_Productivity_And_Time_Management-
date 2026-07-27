@@ -1,0 +1,30 @@
+/* ============================================================
+   React App Global Styles
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent    : #3b82d4;
+  --success   : #22c55e;
+  --warning   : #f59e0b;
+  --danger    : #ef4444;
+  --purple    : #7c5cd8;
+  --bg        : #f0f2f7;
+  --surface   : #ffffff;
+  --border    : #e2e8f0;
+  --text      : #1a202c;
+  --muted     : #718096;
+  --radius    : 10px;
+  --font      : -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  background : var(--bg);
+  color      : var(--text);
+  font-size  : 14px;
+  line-height: 1.6;
+}
+
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: var(--font); }

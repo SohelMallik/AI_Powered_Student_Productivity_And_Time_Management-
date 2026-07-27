@@ -1,0 +1,201 @@
+/* ============================================================
+   Dashboard-specific Styles
+   ============================================================ */
+
+/* ── Stat Cards ──────────────────────────────────────────── */
+.stats-grid {
+  display              : grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap                  : 16px;
+  margin-bottom        : 24px;
+}
+@media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .stats-grid { grid-template-columns: 1fr; } }
+
+.stat-card {
+  background   : var(--color-surface);
+  border       : 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding      : 20px;
+  display      : flex;
+  align-items  : flex-start;
+  gap          : 14px;
+  box-shadow   : var(--shadow);
+  transition   : box-shadow var(--transition);
+}
+.stat-card:hover { box-shadow: var(--shadow-md); }
+
+.stat-icon {
+  width          : 48px;
+  height         : 48px;
+  border-radius  : 12px;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 22px;
+  flex-shrink    : 0;
+}
+.stat-icon.blue   { background: #dbeafe; }
+.stat-icon.green  { background: #dcfce7; }
+.stat-icon.orange { background: #ffedd5; }
+.stat-icon.purple { background: #ede9fe; }
+.stat-icon.red    { background: #fee2e2; }
+.stat-icon.teal   { background: #ccfbf1; }
+
+.stat-info {}
+.stat-label {
+  font-size  : 12px;
+  font-weight: 600;
+  color      : var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.stat-value {
+  font-size  : 26px;
+  font-weight: 800;
+  color      : var(--color-text);
+  line-height : 1.1;
+}
+.stat-sub { font-size: 11px; color: var(--color-muted); margin-top: 2px; }
+.stat-change {
+  font-size  : 12px;
+  font-weight: 600;
+  margin-top : 4px;
+}
+.stat-change.up   { color: var(--color-success); }
+.stat-change.down { color: var(--color-danger); }
+
+/* ── Dashboard Grid ──────────────────────────────────────── */
+.dashboard-grid {
+  display              : grid;
+  grid-template-columns: 2fr 1fr;
+  gap                  : 20px;
+}
+@media (max-width: 1024px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Priority Task List ──────────────────────────────────── */
+.task-list { display: flex; flex-direction: column; gap: 10px; }
+
+.task-item {
+  display      : flex;
+  align-items  : center;
+  gap          : 12px;
+  padding      : 12px 14px;
+  background   : var(--color-bg);
+  border-radius: var(--radius);
+  border       : 1px solid transparent;
+  transition   : all var(--transition);
+  cursor       : pointer;
+}
+.task-item:hover { border-color: var(--color-accent); background: #eff6ff; }
+
+.task-priority-bar {
+  width        : 4px;
+  height       : 40px;
+  border-radius: 4px;
+  flex-shrink  : 0;
+}
+.task-priority-bar.critical { background: var(--color-danger); }
+.task-priority-bar.high     { background: var(--color-warning); }
+.task-priority-bar.medium   { background: var(--color-accent); }
+.task-priority-bar.low      { background: var(--color-success); }
+
+.task-info { flex: 1; min-width: 0; }
+.task-title-text {
+  font-weight  : 600;
+  font-size    : 13px;
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+}
+.task-meta { font-size: 11px; color: var(--color-muted); margin-top: 2px; }
+.task-deadline { font-size: 11px; font-weight: 600; }
+.task-deadline.overdue  { color: var(--color-danger); }
+.task-deadline.soon     { color: var(--color-warning); }
+.task-deadline.normal   { color: var(--color-success); }
+
+.task-score {
+  font-size  : 11px;
+  font-weight: 700;
+  padding    : 2px 8px;
+  border-radius: 999px;
+}
+
+/* ── Pomodoro Widget ─────────────────────────────────────── */
+.pomodoro-widget {
+  text-align: center;
+  padding   : 8px 0;
+}
+.pomodoro-timer {
+  font-size  : 52px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  color      : var(--color-text);
+  line-height: 1;
+  margin     : 12px 0;
+  font-variant-numeric: tabular-nums;
+}
+.pomodoro-phase {
+  font-size   : 13px;
+  font-weight : 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding     : 3px 10px;
+  border-radius: 999px;
+  display     : inline-block;
+  margin-bottom: 16px;
+}
+.pomodoro-phase.work  { background: #fee2e2; color: #b91c1c; }
+.pomodoro-phase.break { background: #dcfce7; color: #15803d; }
+.pomodoro-cycles { font-size: 13px; color: var(--color-muted); margin-bottom: 16px; }
+.pomodoro-controls { display: flex; gap: 8px; justify-content: center; }
+.pomodoro-ring {
+  width         : 120px;
+  height        : 120px;
+  margin        : 0 auto 8px;
+  position      : relative;
+}
+.pomodoro-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.pomodoro-ring .ring-bg   { fill: none; stroke: var(--color-border); stroke-width: 8; }
+.pomodoro-ring .ring-fill { fill: none; stroke: var(--color-accent); stroke-width: 8;
+  stroke-linecap: round; transition: stroke-dashoffset .5s ease; }
+.ring-label {
+  position  : absolute;
+  inset     : 0;
+  display   : flex;
+  align-items: center;
+  justify-content: center;
+  font-size : 18px;
+  font-weight: 800;
+}
+
+/* ── AI Alert Banner ─────────────────────────────────────── */
+.ai-alert {
+  border-radius: var(--radius);
+  padding      : 12px 16px;
+  display      : flex;
+  align-items  : flex-start;
+  gap          : 10px;
+  margin-bottom: 10px;
+  font-size    : 13px;
+  font-weight  : 500;
+}
+.ai-alert.critical { background: #fee2e2; border-left: 4px solid var(--color-danger); color: #7f1d1d; }
+.ai-alert.high     { background: #fef9c3; border-left: 4px solid var(--color-warning); color: #713f12; }
+.ai-alert.medium   { background: #dbeafe; border-left: 4px solid var(--color-accent); color: #1e3a8a; }
+.ai-alert.low      { background: #dcfce7; border-left: 4px solid var(--color-success); color: #14532d; }
+
+/* ── Focus Score Ring ────────────────────────────────────── */
+.focus-ring-wrap {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  gap            : 8px;
+}
+.focus-score-value {
+  font-size  : 32px;
+  font-weight: 800;
+  color      : var(--color-accent);
+}

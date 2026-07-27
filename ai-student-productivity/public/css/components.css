@@ -1,0 +1,312 @@
+/* ============================================================
+   Component Styles
+   ============================================================ */
+
+/* ── Weekly Timetable ────────────────────────────────────── */
+.timetable {
+  display              : grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  border               : 1px solid var(--color-border);
+  border-radius        : var(--radius-lg);
+  overflow             : hidden;
+  font-size            : 12px;
+}
+.timetable-header {
+  background : var(--color-bg);
+  padding    : 10px 6px;
+  text-align : center;
+  font-weight: 700;
+  border-bottom: 1px solid var(--color-border);
+  font-size  : 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.timetable-time {
+  padding   : 8px 6px;
+  text-align: right;
+  color     : var(--color-muted);
+  border-right: 1px solid var(--color-border);
+  font-size : 10px;
+  background: var(--color-bg);
+}
+.timetable-cell {
+  border-left  : 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  min-height   : 40px;
+  position     : relative;
+  transition   : background var(--transition);
+}
+.timetable-cell:hover { background: #f8fafc; }
+
+.schedule-slot {
+  position     : absolute;
+  inset-inline : 2px;
+  border-radius: 6px;
+  padding      : 3px 6px;
+  font-size    : 10px;
+  font-weight  : 600;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+  white-space  : nowrap;
+  cursor       : pointer;
+  z-index      : 2;
+}
+
+/* ── Study Session Cards ─────────────────────────────────── */
+.session-card {
+  display      : grid;
+  grid-template-columns: auto 1fr auto;
+  gap          : 14px;
+  align-items  : center;
+  padding      : 14px 16px;
+  background   : var(--color-surface);
+  border       : 1px solid var(--color-border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  transition   : box-shadow var(--transition);
+}
+.session-card:hover { box-shadow: var(--shadow-md); }
+.session-subject-dot {
+  width        : 10px;
+  height       : 10px;
+  border-radius: 50%;
+  flex-shrink  : 0;
+}
+.session-details { flex: 1; }
+.session-subject { font-weight: 700; font-size: 14px; }
+.session-meta    { font-size: 12px; color: var(--color-muted); }
+.session-duration {
+  font-size  : 18px;
+  font-weight: 800;
+  color      : var(--color-accent);
+}
+
+/* ── AI Insight Card ─────────────────────────────────────── */
+.insight-card {
+  background   : var(--color-surface);
+  border       : 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding      : 18px;
+  margin-bottom: 12px;
+  transition   : box-shadow var(--transition);
+}
+.insight-card:hover { box-shadow: var(--shadow-md); }
+.insight-header {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  margin-bottom: 10px;
+}
+.insight-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.insight-title  { font-weight: 700; font-size: 14px; }
+.insight-body   { font-size: 13px; color: var(--color-muted); line-height: 1.6; }
+.insight-score  {
+  font-size  : 28px;
+  font-weight: 800;
+  color      : var(--color-accent);
+  margin     : 8px 0;
+}
+.procrastination-item {
+  background   : #fff7ed;
+  border       : 1px solid #fed7aa;
+  border-radius: var(--radius);
+  padding      : 12px 14px;
+  margin-bottom: 8px;
+}
+.procrastination-item.critical { background: #fee2e2; border-color: #fca5a5; }
+.proc-task   { font-weight: 700; font-size: 13px; }
+.proc-tip    { font-size: 12px; color: var(--color-muted); margin-top: 4px; }
+.proc-bar-wrap { margin-top: 8px; }
+
+/* ── Semester Timeline ───────────────────────────────────── */
+.semester-timeline {
+  position: relative;
+  padding : 0 0 0 28px;
+}
+.semester-timeline::before {
+  content      : '';
+  position     : absolute;
+  left         : 10px;
+  top          : 0;
+  bottom       : 0;
+  width        : 2px;
+  background   : var(--color-border);
+}
+.timeline-item {
+  position     : relative;
+  padding      : 0 0 20px;
+}
+.timeline-item::before {
+  content      : '';
+  position     : absolute;
+  left         : -24px;
+  top          : 5px;
+  width        : 12px;
+  height       : 12px;
+  border-radius: 50%;
+  border       : 2px solid var(--color-surface);
+  box-shadow   : 0 0 0 2px var(--color-accent);
+  background   : var(--color-accent);
+}
+.timeline-item.exam::before   { background: var(--color-danger); box-shadow: 0 0 0 2px var(--color-danger); }
+.timeline-item.holiday::before{ background: var(--color-success); box-shadow: 0 0 0 2px var(--color-success); }
+.timeline-date  { font-size: 11px; color: var(--color-muted); font-weight: 600; }
+.timeline-title { font-weight: 600; font-size: 13px; }
+.timeline-course{ font-size: 11px; color: var(--color-accent); }
+
+/* ── Courses Grid ────────────────────────────────────────── */
+.course-card {
+  background   : var(--color-surface);
+  border       : 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding      : 14px 16px;
+  display      : flex;
+  align-items  : center;
+  gap          : 12px;
+}
+.course-color-dot {
+  width        : 14px;
+  height       : 14px;
+  border-radius: 4px;
+  flex-shrink  : 0;
+}
+.course-info { flex: 1; }
+.course-name  { font-weight: 700; font-size: 13px; }
+.course-code  { font-size: 11px; color: var(--color-muted); }
+.course-credits{ font-size: 13px; font-weight: 700; color: var(--color-accent); }
+
+/* ── Mini SVG Chart ──────────────────────────────────────── */
+.mini-chart-wrap { overflow: visible; }
+.mini-chart-bar  { fill: var(--color-accent); rx: 3; transition: fill .2s; }
+.mini-chart-bar:hover { fill: var(--color-accent-dk); }
+
+/* ── Tab Switcher ────────────────────────────────────────── */
+.tabs {
+  display      : flex;
+  gap          : 4px;
+  background   : var(--color-bg);
+  border-radius: var(--radius);
+  padding      : 4px;
+  margin-bottom: 20px;
+  width        : fit-content;
+}
+.tab-btn {
+  padding      : 6px 16px;
+  border-radius: var(--radius);
+  border       : none;
+  background   : transparent;
+  font-weight  : 600;
+  font-size    : 13px;
+  color        : var(--color-muted);
+  transition   : all var(--transition);
+}
+.tab-btn.active {
+  background : var(--color-surface);
+  color      : var(--color-accent);
+  box-shadow : var(--shadow);
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Mood Picker ─────────────────────────────────────────── */
+.mood-picker {
+  display : flex;
+  gap     : 8px;
+  flex-wrap: wrap;
+}
+.mood-btn {
+  padding      : 6px 14px;
+  border-radius: 999px;
+  border       : 2px solid var(--color-border);
+  background   : var(--color-surface);
+  font-size    : 13px;
+  cursor       : pointer;
+  transition   : all var(--transition);
+}
+.mood-btn.selected { border-color: var(--color-accent); background: #eff6ff; color: var(--color-accent); }
+
+/* ── Range Slider ────────────────────────────────────────── */
+.range-slider {
+  -webkit-appearance: none;
+  width             : 100%;
+  height            : 6px;
+  border-radius     : 999px;
+  background        : var(--color-border);
+  outline           : none;
+}
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width             : 18px;
+  height            : 18px;
+  border-radius     : 50%;
+  background        : var(--color-accent);
+  cursor            : pointer;
+  box-shadow        : 0 2px 4px rgba(0,0,0,.2);
+}
+
+/* ── Settings ────────────────────────────────────────────── */
+.settings-section {
+  background   : var(--color-surface);
+  border       : 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding      : 20px 24px;
+  margin-bottom: 20px;
+}
+.settings-section-title {
+  font-size    : 15px;
+  font-weight  : 700;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+.settings-row {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  padding        : 12px 0;
+  border-bottom  : 1px solid var(--color-bg);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-weight: 600; font-size: 13px; }
+.settings-desc  { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
+
+/* ── Toggle Switch ───────────────────────────────────────── */
+.toggle-switch { position: relative; width: 44px; height: 24px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position     : absolute;
+  inset        : 0;
+  border-radius: 999px;
+  background   : var(--color-border);
+  transition   : background var(--transition);
+  cursor       : pointer;
+}
+.toggle-track::before {
+  content      : '';
+  position     : absolute;
+  width        : 18px;
+  height       : 18px;
+  border-radius: 50%;
+  background   : #fff;
+  left         : 3px;
+  top          : 3px;
+  transition   : transform var(--transition);
+  box-shadow   : 0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-switch input:checked + .toggle-track { background: var(--color-accent); }
+.toggle-switch input:checked + .toggle-track::before { transform: translateX(20px); }
+
+/* ── Loading Spinner ─────────────────────────────────────── */
+.spinner {
+  width        : 20px;
+  height       : 20px;
+  border       : 2px solid var(--color-border);
+  border-top   : 2px solid var(--color-accent);
+  border-radius: 50%;
+  animation    : spin .7s linear infinite;
+  display      : inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
