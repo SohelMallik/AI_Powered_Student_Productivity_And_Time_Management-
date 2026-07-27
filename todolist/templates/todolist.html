@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block title %}My Tasks{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+{% if messages %}{% for m in messages %}
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    {{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>{% endfor %}{% endif %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold mb-0">📋 My Tasks</h3>
+        <small class="text-muted">Today: {{ today }}</small>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary btn-sm">AI Dashboard</a>
+</div>
+
+<!-- Overall Productivity -->
+<div class="card mb-4 progress-card">
+    <div class="card-body py-3">
+        <div class="d-flex justify-content-between mb-2">
+            <span class="small fw-semibold"> Overall Productivity</span>
+            <span class="small text-muted">{{ completed }}/{{ total }} tasks completed</span>
+        </div>
+        <div class="progress mb-2" style="height:10px;border-radius:8px;">
+            <div class="progress-bar bg-success" style="width:{{ progress_pct }}%"
+                 aria-valuenow="{{ progress_pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div class="d-flex gap-3 flex-wrap">
+            <span class="stat-badge stat-total">Total: {{ total }}</span>
+            <span class="stat-badge stat-done">Done: {{ completed }}</span>
+            <span class="stat-badge stat-pending">Pending: {{ pending }}</span>
+            {% if overdue > 0 %}<span class="stat-badge stat-overdue">Overdue: {{ overdue }}</span>{% endif %}
+            {% if due_today > 0 %}<span class="stat-badge stat-overdue">Due Today: {{ due_today }}</span>{% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Term 1: Add Task Form -->
+<div class="card mb-4">
+    <div class="card-header fw-semibold"> Add New Task</div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="task"
+                           placeholder="What do you need to do?" required>
+                </div>
+                <div class="col-md-2">
+                    <select name="priority" class="form-select">
+                        <option value="Medium">Medium</option>
+                        <option value="High">🔴 High</option>
+                        <option value="Low">🟢 Low</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="category" class="form-select">
+                        {% for val, label in categories %}
+                        <option value="{{ val }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="due_date" class="form-control">
+                </div>
+                <div class="col-md-1">
+                    <select name="reminder" class="form-select">
+                        <option value="none">No Reminder</option>
+                        <option value="1_day">1 Day</option>
+                        <option value="3_days">3 Days</option>
+                        <option value="1_week">1 Week</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Add Task</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form method="get" class="d-flex gap-2 flex-wrap align-items-center">
+            <small class="text-muted fw-semibold">Filter:</small>
+            <select name="category" class="form-select form-select-sm" style="width:auto;">
+                <option value="">All Categories</option>
+                {% for val, label in categories %}
+                <option value="{{ val }}" {% if category_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <select name="priority" class="form-select form-select-sm" style="width:auto;">
+                <option value="">All Priorities</option>
+                {% for val, label in priorities %}
+                <option value="{{ val }}" {% if priority_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <select name="status" class="form-select form-select-sm" style="width:auto;">
+                <option value="">All Status</option>
+                <option value="pending"   {% if status_filter == 'pending'   %}selected{% endif %}>Pending</option>
+                <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-outline-primary">Apply</button>
+            <a href="{% url 'todolist' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
+        </form>
+    </div>
+</div>
+
+<!-- Task Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:36px;"></th>
+                        <th>Task</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Due Date</th>
+                        <th>Reminder</th>
+                        <th>Status</th>
+                        <th style="width:100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in all_tasks %}
+                    <tr class="{% if task.is_completed %}task-row-done{% elif task.due_date and task.due_date < today %}task-row-overdue{% else %}task-row-pending{% endif %}">
+                        <td class="text-muted small">{{ forloop.counter }}</td>
+                        <td>
+                            <span class="{% if task.is_completed %}text-decoration-line-through text-muted{% endif %}">
+                                {{ task.task }}
+                            </span>
+                            {% if task.notes %}
+                            <div class="small text-muted">📝 {{ task.notes|truncatechars:40 }}</div>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge-cat badge-cat-{{ task.category|lower }}">{{ task.category }}</span></td>
+                        <td>
+                            {% if task.priority == 'High' %}
+                                <span class="priority-badge priority-high">High</span>
+                            {% elif task.priority == 'Medium' %}
+                                <span class="priority-badge priority-medium">Med</span>
+                            {% else %}
+                                <span class="priority-badge priority-low">Low</span>
+                            {% endif %}
+                        </td>
+                        <td class="small {% if not task.is_completed and task.due_date and task.due_date < today %}text-danger fw-semibold{% endif %}">
+                            {% if task.due_date %}{{ task.due_date }}{% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        <td class="small text-muted">
+                            {% if task.reminder != 'none' %}
+                            <span class="reminder-badge">🔔 {{ task.get_reminder_display }}</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>
+                            {% if task.is_completed %}
+                                <a href="{% url 'pending_task' task.id %}" class="btn btn-xs btn-outline-secondary">Undo</a>
+                            {% else %}
+                                <a href="{% url 'complete_task' task.id %}" class="btn btn-xs btn-success">Done</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'edit_task' task.id %}" class="btn btn-xs btn-outline-primary">Edit</a>
+                                <a href="{% url 'delete_task' task.id %}"
+                                   class="btn btn-xs btn-outline-danger"
+                                   onclick="return confirm('Delete this task?')">Del</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5">
+                            No tasks found. Add one above to get started!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if all_tasks.paginator.num_pages > 1 %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if all_tasks.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo;&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ all_tasks.previous_page_number }}">&laquo;</a></li>
+        {% endif %}
+        {% for p in all_tasks.paginator.page_range %}
+        <li class="page-item {% if p == all_tasks.number %}active{% endif %}">
+            <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+        {% if all_tasks.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ all_tasks.next_page_number }}">&raquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ all_tasks.paginator.num_pages }}">&raquo;&raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+</div>
+{% endblock %}

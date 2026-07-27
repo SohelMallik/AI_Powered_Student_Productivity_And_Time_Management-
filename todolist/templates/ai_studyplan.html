@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+{% block title %}AI Study Plan Generator{% endblock %}
+
+{% block head %}
+<style>
+/* ── Loading overlay ─────────────────────────── */
+#ai-loading {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.55);
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+#ai-loading.active {
+    display: flex;
+}
+#ai-loading .spinner-border { width: 3.5rem; height: 3.5rem; }
+#ai-loading p { color: #fff; font-size: 1rem; font-weight: 500; margin: 0; }
+
+/* ── Day cards ───────────────────────────────── */
+.day-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.day-card-header {
+    background: linear-gradient(90deg, #1e40af, #3b82f6);
+    color: #fff;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.day-card-header .day-name  { font-weight: 700; font-size: .95rem; }
+.day-card-header .day-focus { font-size: .82rem; opacity: .85; }
+.day-card-body { padding: 12px 16px; background: #fff; }
+
+/* ── Session rows ────────────────────────────── */
+.session-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+.session-row:last-child { border-bottom: none; }
+.session-time {
+    min-width: 130px;
+    font-size: .78rem;
+    font-weight: 600;
+    color: #4b5563;
+    padding-top: 2px;
+}
+.session-body { flex: 1; }
+.session-subject { font-weight: 600; font-size: .88rem; color: #111827; }
+.session-task    { font-size: .82rem; color: #6b7280; margin-top: 2px; }
+.session-badges  { margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; }
+
+/* ── Technique badge colours ─────────────────── */
+.badge-pomodoro  { background: #fef3c7; color: #92400e; }
+.badge-deep      { background: #ede9fe; color: #5b21b6; }
+.badge-review    { background: #d1fae5; color: #065f46; }
+.badge-normal    { background: #e0f2fe; color: #0c4a6e; }
+.badge-pri-high  { background: #fee2e2; color: #991b1b; }
+.badge-pri-med   { background: #fef9c3; color: #854d0e; }
+.badge-pri-low   { background: #dcfce7; color: #166534; }
+
+/* ── Day tip ─────────────────────────────────── */
+.day-tip {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #f0fdf4;
+    border-left: 3px solid #22c55e;
+    border-radius: 0 6px 6px 0;
+    font-size: .82rem;
+    color: #166534;
+}
+
+/* ── Summary & recommendations ───────────────── */
+.ai-summary-card {
+    background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 1.5rem;
+}
+.rec-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: .9rem;
+}
+.rec-item:last-child { border-bottom: none; }
+.rec-num {
+    background: #3b82f6; color: #fff;
+    font-size: .75rem; font-weight: 700;
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+}
+
+/* ── Stats row ───────────────────────────────── */
+.context-stat {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+}
+.context-stat .val { font-size: 1.6rem; font-weight: 700; color: #1e40af; }
+.context-stat .lbl { font-size: .78rem; color: #6b7280; margin-top: 2px; }
+
+/* ── Generate button ─────────────────────────── */
+.btn-ai-generate {
+    background: linear-gradient(135deg, #1e40af, #7c3aed);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .2s;
+}
+.btn-ai-generate:hover { opacity: .88; color: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:960px;">
+
+{% if messages %}{% for m in messages %}
+<div class="alert alert-info alert-dismissible fade show">
+    {{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>{% endfor %}{% endif %}
+
+<!-- Loading overlay -->
+<div id="ai-loading">
+    <div class="spinner-border text-light" role="status"></div>
+    <p>🤖 Gemini AI is building your personalised study plan…</p>
+    <p style="font-size:.85rem;opacity:.75;">This may take 10–20 seconds</p>
+</div>
+
+<!-- ── Header ──────────────────────────────────────── -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold mb-0">🤖 AI Study Plan Generator</h3>
+        <small class="text-muted">Gemini AI automatically builds your personalised 7-day study schedule</small>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary btn-sm">← Dashboard</a>
+        <a href="{% url 'semester_plan' %}" class="btn btn-outline-secondary btn-sm">Semester Plans</a>
+    </div>
+</div>
+
+<!-- ── Context stats ──────────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="context-stat">
+            <div class="val">{{ task_count }}</div>
+            <div class="lbl">Total Tasks</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="context-stat">
+            <div class="val {% if pending > 0 %}text-warning{% endif %}">{{ pending }}</div>
+            <div class="lbl">Pending Tasks</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="context-stat">
+            <div class="val {% if overdue > 0 %}text-danger{% endif %}">{{ overdue }}</div>
+            <div class="lbl">Overdue Tasks</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="context-stat">
+            <div class="val">{{ session_count }}</div>
+            <div class="lbl">Study Sessions</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Generate form ──────────────────────────────── -->
+{% if not ai_plan %}
+<div class="card mb-4" style="border:2px solid #3b82f6;border-radius:14px;">
+    <div class="card-body text-center py-5">
+        <div style="font-size:3rem;">🧠</div>
+        <h4 class="fw-bold mt-3 mb-2">Generate Your AI Study Plan</h4>
+        <p class="text-muted mb-1">
+            Gemini AI will analyse your <strong>{{ task_count }} tasks</strong>,
+            <strong>{{ session_count }} study sessions</strong>, and
+            <strong>{{ semester_plans|length }} semester plan(s)</strong>
+        </p>
+        <p class="text-muted mb-4">
+            and automatically build a complete, personalised <strong>7-day weekly schedule</strong> for you.
+        </p>
+        {% if overdue > 0 %}
+        <div class="alert alert-danger d-inline-block mb-4 px-4">
+            ⚠️ You have <strong>{{ overdue }} overdue task(s)</strong> — the AI will prioritise them on Day 1.
+        </div>
+        {% endif %}
+        <form method="post" id="ai-form">
+            {% csrf_token %}
+            <button type="submit" class="btn-ai-generate" id="generate-btn">
+                🤖 Generate My Study Plan with AI
+            </button>
+        </form>
+        <p class="text-muted mt-3 small">Powered by Google Gemini 1.5 Flash · Takes ~15 seconds</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Error state ────────────────────────────────── -->
+{% if ai_error %}
+<div class="alert alert-danger">
+    <strong>⚠️ AI Error:</strong> {{ ai_error }}
+    <hr class="my-2">
+    <small>Make sure your <code>GEMINI_API_KEY</code> is set. Get a free key at
+        <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.
+    </small>
+</div>
+<form method="post" class="mt-3">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">🔄 Try Again</button>
+</form>
+{% endif %}
+
+<!-- ── AI Plan output ─────────────────────────────── -->
+{% if ai_plan %}
+
+<!-- Summary -->
+<div class="ai-summary-card mb-4">
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <span style="font-size:2rem;">🤖</span>
+        <div>
+            <div class="fw-bold fs-5">Your Personalised AI Study Plan</div>
+            <div class="small text-muted">Generated by Gemini AI · {{ today }}</div>
+        </div>
+        <div class="ms-auto">
+            <span class="badge bg-success">~{{ ai_plan.estimated_weekly_hours }}h / week</span>
+        </div>
+    </div>
+    <p class="mb-0 text-dark" style="font-size:.95rem;line-height:1.65;">{{ ai_plan.summary }}</p>
+</div>
+
+{% if ai_plan.procrastination_warning %}
+<div class="alert alert-danger d-flex align-items-start gap-2 mb-4">
+    <span style="font-size:1.3rem;">🚨</span>
+    <div><strong>Urgent:</strong> {{ ai_plan.procrastination_warning }}</div>
+</div>
+{% endif %}
+
+<div class="row g-4 mb-4">
+
+    <!-- ── 7-day plan ───────────────────────────── -->
+    <div class="col-lg-8">
+        <h5 class="fw-bold mb-3">📅 Your 7-Day Study Schedule</h5>
+        {% for day in ai_plan.weekly_plan %}
+        <div class="day-card">
+            <div class="day-card-header">
+                <span class="day-name">{{ day.day }}</span>
+                <span class="day-focus">🎯 {{ day.focus }}</span>
+            </div>
+            <div class="day-card-body">
+                {% for session in day.sessions %}
+                <div class="session-row">
+                    <div class="session-time">🕐 {{ session.time }}</div>
+                    <div class="session-body">
+                        <div class="session-subject">{{ session.subject }}</div>
+                        <div class="session-task">{{ session.task }}</div>
+                        <div class="session-badges">
+                            {% if session.technique %}
+                            <span class="badge badge-{% if 'Pomodoro' in session.technique %}pomodoro{% elif 'Deep' in session.technique %}deep{% elif 'Review' in session.technique %}review{% else %}normal{% endif %}">
+                                {{ session.technique }}
+                            </span>
+                            {% endif %}
+                            {% if session.priority %}
+                            <span class="badge badge-pri-{% if session.priority == 'High' %}high{% elif session.priority == 'Medium' %}med{% else %}low{% endif %}">
+                                {{ session.priority }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-muted small py-2">Rest day — no sessions scheduled.</div>
+                {% endfor %}
+                {% if day.tip %}
+                <div class="day-tip">💡 {{ day.tip }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ── Sidebar: Recommendations + Upcoming tasks ── -->
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header fw-semibold">🏆 Key Recommendations</div>
+            <div class="card-body">
+                {% for rec in ai_plan.key_recommendations %}
+                <div class="rec-item">
+                    <div class="rec-num">{{ forloop.counter }}</div>
+                    <div>{{ rec }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if upcoming %}
+        <div class="card">
+            <div class="card-header fw-semibold">📋 Tasks Scheduled (next 8)</div>
+            <ul class="list-group list-group-flush">
+                {% for task in upcoming %}
+                <li class="list-group-item py-2">
+                    <div class="small fw-semibold">{{ task.task|truncatechars:40 }}</div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <span class="small text-muted">{{ task.category }}</span>
+                        <span class="badge {% if task.priority == 'High' %}bg-danger{% elif task.priority == 'Medium' %}bg-warning text-dark{% else %}bg-secondary{% endif %} small">
+                            {{ task.due_date|default:"No date" }}
+                        </span>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- Regenerate -->
+<div class="text-center mb-4">
+    <form method="post" id="regen-form">
+        {% csrf_token %}
+        <button type="submit" class="btn-ai-generate" id="regen-btn">
+            🔄 Regenerate Plan
+        </button>
+    </form>
+    <p class="text-muted small mt-2">Each generation produces a fresh, updated plan based on your current tasks.</p>
+</div>
+
+{% endif %}
+
+</div>
+
+<script>
+(function() {
+    function attachLoader(formId, btnId) {
+        var form = document.getElementById(formId);
+        var btn  = document.getElementById(btnId);
+        if (!form) return;
+        form.addEventListener('submit', function() {
+            document.getElementById('ai-loading').classList.add('active');
+            if (btn) { btn.disabled = true; btn.textContent = 'Generating…'; }
+        });
+    }
+    attachLoader('ai-form',   'generate-btn');
+    attachLoader('regen-form','regen-btn');
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Contact Us
+{% endblock title %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-8">
+
+            <!-- Success Message -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0 text-center">Customer Support</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <form method="POST" action="{% url 'submit_contact' %}">
+
+                        {% csrf_token %}
+
+                        <!-- Full Name -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="name"
+                                name="name"
+                                placeholder="Enter your full name"
+                                required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input
+                                type="email"
+                                class="form-control"
+                                id="email"
+                                name="email"
+                                placeholder="name@example.com"
+                                required>
+                        </div>
+
+                        <!-- Issue Type -->
+                        <div class="mb-3">
+                            <label for="issue" class="form-label">Issue Type</label>
+
+                            <select
+                                class="form-select"
+                                id="issue"
+                                name="issue"
+                                required>
+
+                                <option value="">-- Select Issue --</option>
+                                <option value="task_not_created">Task Not Created</option>
+                                <option value="task_not_saved">Task Not Saved</option>
+                                <option value="task_not_completed">Task Not Completed</option>
+                                <option value="task_not_edited">Task Not Edited</option>
+                                <option value="task_not_deleted">Task Not Deleted</option>
+                                <option value="other">Other</option>
+
+                            </select>
+                        </div>
+
+                        <!-- Priority -->
+                        <div class="mb-3">
+                            <label for="priority" class="form-label">Priority</label>
+
+                            <select
+                                class="form-select"
+                                id="priority"
+                                name="priority">
+
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+
+                            </select>
+                        </div>
+
+                        <!-- Message -->
+                        <div class="mb-4">
+                            <label for="message" class="form-label">Describe Your Issue</label>
+
+                            <textarea
+                                class="form-control"
+                                id="message"
+                                name="message"
+                                rows="5"
+                                placeholder="Explain the issue in detail..."
+                                required></textarea>
+
+                        </div>
+
+                        <!-- Buttons -->
+                        <button type="submit" class="btn btn-primary">
+                            Submit
+                        </button>
+
+                        <button type="reset" class="btn btn-secondary ms-2">
+                            Reset
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock content %}

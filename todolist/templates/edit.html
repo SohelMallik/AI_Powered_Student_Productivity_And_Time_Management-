@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Edit Task{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:680px;">
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <a href="{% url 'todolist' %}" class="btn btn-sm btn-outline-secondary">← Back</a>
+        <h4 class="fw-bold mb-0">Edit Task</h4>
+    </div>
+
+    {% if messages %}{% for m in messages %}
+    <div class="alert alert-{{ m.tags }} alert-dismissible fade show">
+        {{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>{% endfor %}{% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="id_task" class="form-label fw-semibold">Task Description (Term #1)</label>
+                    <input type="text" class="form-control" name="task" id="id_task"
+                           value="{{ task_obj.task }}" placeholder="Describe the task..." required>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Priority (Term #3)</label>
+                        <select name="priority" class="form-select">
+                            <option value="Low"    {% if task_obj.priority == 'Low'    %}selected{% endif %}>🟢 Low</option>
+                            <option value="Medium" {% if task_obj.priority == 'Medium' %}selected{% endif %}>🟡 Medium</option>
+                            <option value="High"   {% if task_obj.priority == 'High'   %}selected{% endif %}>🔴 High</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Category (Term #11)</label>
+                        <select name="category" class="form-select">
+                            <option value="Assignment" {% if task_obj.category == 'Assignment' %}selected{% endif %}>Assignment</option>
+                            <option value="Exam"       {% if task_obj.category == 'Exam'       %}selected{% endif %}>Exam</option>
+                            <option value="Project"    {% if task_obj.category == 'Project'    %}selected{% endif %}>Project</option>
+                            <option value="Reading"    {% if task_obj.category == 'Reading'    %}selected{% endif %}>Reading</option>
+                            <option value="Revision"   {% if task_obj.category == 'Revision'   %}selected{% endif %}>Revision</option>
+                            <option value="Other"      {% if task_obj.category == 'Other'      %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Due Date (Term #5)</label>
+                        <input type="date" name="due_date" class="form-control"
+                               value="{{ task_obj.due_date|date:'Y-m-d' }}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Reminder (Term #6)</label>
+                    <select name="reminder" class="form-select">
+                        <option value="none"   {% if task_obj.reminder == 'none'   %}selected{% endif %}>No Reminder</option>
+                        <option value="1_day"  {% if task_obj.reminder == '1_day'  %}selected{% endif %}>1 Day Before</option>
+                        <option value="3_days" {% if task_obj.reminder == '3_days' %}selected{% endif %}>3 Days Before</option>
+                        <option value="1_week" {% if task_obj.reminder == '1_week' %}selected{% endif %}>1 Week Before</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Study Notes (Term #13 — Personalised Plan)</label>
+                    <textarea name="notes" class="form-control" rows="2"
+                              placeholder="Personal notes about this task...">{{ task_obj.notes }}</textarea>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input type="checkbox" class="form-check-input" name="is_completed" id="id_is_completed"
+                           {% if task_obj.is_completed %}checked{% endif %}>
+                    <label class="form-check-label fw-semibold" for="id_is_completed">Mark as Completed (Term #10)</label>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4">Update Task</button>
+                    <a href="{% url 'todolist' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

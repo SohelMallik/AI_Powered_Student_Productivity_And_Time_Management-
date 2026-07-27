@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+{% block title %}AI Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+{% if messages %}{% for m in messages %}
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    {{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>{% endfor %}{% endif %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold mb-0">🤖 AI Dashboard</h3>
+        <small class="text-muted">Welcome back, <strong>{{ user.username }}</strong> — {{ today }}</small>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'todolist' %}" class="btn btn-primary btn-sm">My Tasks</a>
+        <a href="{% url 'semester_plan' %}" class="btn btn-outline-primary btn-sm">Study Plan</a>
+        <a href="{% url 'ai_study_plan' %}" class="btn btn-sm text-white fw-semibold" style="background:linear-gradient(135deg,#1e40af,#7c3aed);">🤖 AI Auto-Plan</a>
+    </div>
+</div>
+
+<!-- ── Term 10: 5 STAT CARDS ── -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-2">
+        <div class="stat-card stat-card-blue">
+            <div class="stat-val">{{ total }}</div>
+            <div class="stat-lbl">Total Tasks</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card stat-card-green">
+            <div class="stat-val">{{ completed }}</div>
+            <div class="stat-lbl">Completed</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card stat-card-orange">
+            <div class="stat-val">{{ pending }}</div>
+            <div class="stat-lbl">Pending</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card {% if overdue > 0 %}stat-card-red{% else %}stat-card-gray{% endif %}">
+            <div class="stat-val">{{ overdue }}</div>
+            <div class="stat-lbl">Overdue</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card {% if due_today > 0 %}stat-card-orange{% else %}stat-card-gray{% endif %}">
+            <div class="stat-val">{{ due_today }}</div>
+            <div class="stat-lbl">Due Today</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-card {% if procrastination_score > 50 %}stat-card-red{% elif procrastination_score > 25 %}stat-card-orange{% else %}stat-card-green{% endif %}">
+            <div class="stat-val">{{ procrastination_score }}</div>
+            <div class="stat-lbl">Procr. Score</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Term 9 & 10: Progress + Study Hours ── -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header fw-semibold">Overall Productivity Progress</div>
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small text-muted">{{ completed }} of {{ total }} tasks done</span>
+                    <span class="fw-bold text-success">{{ progress_pct }}%</span>
+                </div>
+                <div class="progress mb-3" style="height:14px;border-radius:8px;">
+                    <div class="progress-bar bg-success" style="width:{{ progress_pct }}%"></div>
+                </div>
+                <div class="small">
+                    {% if due_today > 0 %}
+                    <span class="text-danger fw-semibold">⚠️ {{ due_today }} task(s) due TODAY!</span>
+                    {% else %}
+                    <span class="text-success">✅ No tasks due today — you're clear!</span>
+                    {% endif %}
+                </div>
+                <!-- Term 8: Procrastination indicator -->
+                <div class="mt-3">
+                    <div class="small text-muted mb-1">Procrastination Risk Score: <strong>{{ procrastination_score }}/100</strong> (lower = better)</div>
+                    <div class="progress" style="height:8px;border-radius:6px;">
+                        <div class="progress-bar {% if procrastination_score > 50 %}bg-danger{% elif procrastination_score > 25 %}bg-warning{% else %}bg-success{% endif %}"
+                             style="width:{{ procrastination_score }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header fw-semibold">Study Hours This Week</div>
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                <div class="study-hours-display">{{ total_study_hours }}h</div>
+                <p class="text-muted small mt-2 mb-2">Total study time in the last 7 days</p>
+                {% if total_study_hours < 2 %}
+                <span class="badge bg-danger">Critical — study more!</span>
+                {% elif total_study_hours < 5 %}
+                <span class="badge bg-warning text-dark">Target: 5h+ / week</span>
+                {% elif total_study_hours >= 10 %}
+                <span class="badge bg-success">Excellent — keep it up!</span>
+                {% else %}
+                <span class="badge bg-info text-dark">Good progress ({{ total_study_hours }}h)</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Term 6: Smart Reminders ── -->
+{% if reminder_alerts %}
+<div class="card mb-4 border-warning">
+    <div class="card-header fw-semibold bg-warning text-dark">
+        Smart Reminders ({{ reminder_alerts|length }} active)
+    </div>
+    <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+            {% for alert in reminder_alerts %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="small fw-semibold">{{ alert.task.task }}</div>
+                    <div class="small text-muted">{{ alert.task.category }} · {{ alert.task.priority }} priority</div>
+                </div>
+                <span class="badge {% if alert.days_left < 0 %}bg-danger{% elif alert.days_left == 0 %}bg-danger{% else %}bg-warning text-dark{% endif %} rounded-pill">
+                    {{ alert.label }}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Term 13: AI Smart Tips ── -->
+<div class="card mb-4">
+    <div class="card-header fw-semibold d-flex align-items-center gap-2">
+        Personalised AI Study Tips
+        <span class="badge bg-primary ms-auto">{{ smart_tips|length }} tips for you</span>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            {% for tip in smart_tips %}
+            <div class="col-md-6">
+                <div class="ai-tip-card ai-tip-{{ tip.type }}">
+                    <div class="ai-tip-icon">{{ tip.icon }}</div>
+                    <div>
+                        <div class="ai-tip-title">{{ tip.title }}</div>
+                        <div class="ai-tip-body">{{ tip.body }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+
+    <!-- ── Term 5: Upcoming Deadlines ── -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header fw-semibold">Upcoming Deadlines (7 days)</div>
+            <div class="card-body p-0">
+                {% if upcoming_tasks %}
+                <ul class="list-group list-group-flush">
+                    {% for task in upcoming_tasks %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="small fw-semibold">{{ task.task }}</div>
+                            <div class="small text-muted">{{ task.category }} · {{ task.priority }}</div>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ task.due_date }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center text-muted py-4 small">No upcoming deadlines in the next 7 days!</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Term 3 & 12: High Priority Focus ── -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header fw-semibold text-danger">High Priority Focus</div>
+            <div class="card-body p-0">
+                {% if high_priority %}
+                <ul class="list-group list-group-flush">
+                    {% for task in high_priority %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="small fw-semibold">{{ task.task }}</div>
+                            <div class="small text-muted">{{ task.category }}</div>
+                        </div>
+                        <span class="badge {% if task.due_date %}bg-danger{% else %}bg-secondary{% endif %} rounded-pill">
+                            {% if task.due_date %}{{ task.due_date }}{% else %}No date{% endif %}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center text-muted py-4 small">No high-priority tasks pending!</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Term 9: Category Progress ── -->
+{% if category_stats %}
+<div class="card mb-4">
+    <div class="card-header fw-semibold">Analyze Study Progress by Category</div>
+    <div class="card-body">
+        <div class="row g-3">
+            {% for cat in category_stats %}
+            <div class="col-md-4">
+                <div class="small fw-semibold mb-1 d-flex justify-content-between">
+                    <span>{{ cat.label }}</span>
+                    <span class="text-muted">{{ cat.done }}/{{ cat.total }} ({{ cat.pct }}%)</span>
+                </div>
+                <div class="progress" style="height:8px;border-radius:6px;">
+                    <div class="progress-bar {% if cat.pct == 100 %}bg-success{% elif cat.pct > 50 %}bg-info{% else %}bg-warning{% endif %}"
+                         style="width:{{ cat.pct }}%;"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Term 11: Semester Plans ── -->
+{% if semester_plans %}
+<div class="card mb-4">
+    <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+        <span>Your Semester Plans</span>
+        <a href="{% url 'semester_plan' %}" class="btn btn-sm btn-outline-primary">Manage Plans</a>
+    </div>
+    <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+            {% for plan in semester_plans %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="fw-semibold small">{{ plan.title }}</div>
+                        <div class="small text-muted">{{ plan.semester }} · {{ plan.start_date }} → {{ plan.end_date }}</div>
+                        <div class="small text-primary mt-1">Goal: {{ plan.goal|truncatechars:80 }}</div>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Term 2: Log Study Session ── -->
+<div class="card mb-4">
+    <div class="card-header fw-semibold">Log a Study Session</div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label small">Subject</label>
+                    {{ session_form.subject }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Duration (min)</label>
+                    {{ session_form.duration_minutes }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Date</label>
+                    {{ session_form.session_date }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Technique</label>
+                    {{ session_form.technique }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Notes</label>
+                    {{ session_form.notes }}
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 btn-sm">Log</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── Term 4: Recent Sessions ── -->
+{% if study_sessions %}
+<div class="card">
+    <div class="card-header fw-semibold">Recent Study Sessions (Last 7 Days)</div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 small">
+            <thead class="table-light">
+                <tr><th>Subject</th><th>Duration</th><th>Technique</th><th>Date</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+                {% for s in study_sessions %}
+                <tr>
+                    <td class="fw-semibold">{{ s.subject }}</td>
+                    <td>{{ s.duration_minutes }} min</td>
+                    <td><span class="badge bg-light text-dark border">{{ s.get_technique_display }}</span></td>
+                    <td>{{ s.session_date }}</td>
+                    <td class="text-muted">{{ s.notes|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+</div>
+{% endblock %}

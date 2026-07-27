@@ -1,0 +1,25 @@
+.is-valid{
+    border:2px solid #198754 !important;
+}
+
+.is-invalid{
+    border:2px solid #dc3545 !important;
+}
+
+.form-control,
+.form-select{
+    transition:.3s;
+}
+
+.form-control:focus,
+.form-select:focus{
+    transform:scale(1.02);
+}
+
+.btn-primary:disabled{
+    cursor:not-allowed;
+}
+
+small{
+    transition:.3s;
+}

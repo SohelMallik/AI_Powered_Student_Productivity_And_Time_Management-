@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}About - AI Productivity Assistant{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- Header / Hero Banner -->
+    <div class="text-center mb-5">
+        <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-2 rounded-pill mb-3">
+            Powered by IBM Bob AI Architecture
+        </span>
+        <h1 class="display-5 fw-bold mb-3">About StudyAI</h1>
+        <p class="text-muted fs-5 mx-auto" style="max-width: 750px;">
+            An intelligent student productivity &amp; time management platform designed to help students overcome academic overwhelm, master scheduling, and build lifelong productive study habits.
+        </p>
+    </div>
+
+    <!-- Why It Matters Section -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body p-4 p-md-5">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-7">
+                    <h3 class="fw-bold text-dark mb-3">Why Student Productivity Matters</h3>
+                    <p class="text-secondary fs-6 lead mb-3">
+                        Modern students often struggle to balance coursework, complex projects, exam prep, and extracurricular commitments simultaneously. Without smart tools, deadline pressure leads to burnout, procrastination, and dropped performance.
+                    </p>
+                    <p class="text-secondary mb-0">
+                        <strong>StudyAI solves this challenge:</strong> By leveraging custom rule-based artificial intelligence, the platform automatically structures schedules, surfaces urgent priorities, and provides actionable time-management guidance to optimize student success.
+                    </p>
+                </div>
+                <div class="col-lg-5">
+                    <div class="p-4 bg-light rounded-4 border border-secondary-subtle">
+                        <h5 class="fw-bold text-primary mb-3">⚡ Core Student Impact</h5>
+                        <ul class="list-unstyled mb-0 d-grid gap-2">
+                            <li class="d-flex align-items-center gap-2">
+                                <span class="badge bg-success rounded-circle p-1">✓</span>
+                                <span>Eliminates missed assignment deadlines</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-2">
+                                <span class="badge bg-success rounded-circle p-1">✓</span>
+                                <span>Slashes academic procrastination</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-2">
+                                <span class="badge bg-success rounded-circle p-1">✓</span>
+                                <span>Balances study sessions &amp; break times</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-2">
+                                <span class="badge bg-success rounded-circle p-1">✓</span>
+                                <span>Tracks long-term semester goals</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core IBM Bob AI Features -->
+    <div class="text-center mb-4">
+        <h3 class="fw-bold">IBM Bob AI Engine Capabilities</h3>
+        <p class="text-muted">How the AI Planner optimizes your study habits daily</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <!-- Feature 1 -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 p-3">
+                <div class="card-body">
+                    <div class="fs-1 text-primary mb-3">⏰</div>
+                    <h5 class="fw-bold">Manages Deadlines</h5>
+                    <p class="text-muted small mb-0">
+                        Tracks assignment due dates in real time, generates urgency alerts, and triggers smart reminders before deadlines arrive to prevent last-minute rushing.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 p-3">
+                <div class="card-body">
+                    <div class="fs-1 text-primary mb-3">📊</div>
+                    <h5 class="fw-bold">Tracks Study Habits</h5>
+                    <p class="text-muted small mb-0">
+                        Logs focus sessions by subject and study technique (Pomodoro, Deep Work). Generates analytics comparing your actual output against weekly target goals.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 p-3">
+                <div class="card-body">
+                    <div class="fs-1 text-primary mb-3">💡</div>
+                    <h5 class="fw-bold">Suggests Time Optimization</h5>
+                    <p class="text-muted small mb-0">
+                        Analyzes active task load to offer dynamic tips for time-blocking, subject prioritization, and breaking down heavy projects into micro-tasks.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Highlighted Modules (Project Ideas) -->
+    <div class="card shadow-sm border-0 mb-5 bg-dark text-white">
+        <div class="card-body p-4 p-md-5">
+            <div class="row align-items-center mb-4">
+                <div class="col-md-8">
+                    <span class="badge bg-warning text-dark fw-bold mb-2">Built-in Modules</span>
+                    <h3 class="fw-bold mb-0">Project Ideas Implemented</h3>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <span class="badge bg-outline-light border px-3 py-2">Aligned with Personal Productivity AI Trend</span>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="p-3 bg-secondary bg-opacity-25 rounded-3 h-100 border border-secondary">
+                        <h5 class="fw-bold text-warning">🗓️ AI Semester Planner</h5>
+                        <p class="small text-light opacity-75 mb-0">
+                            Set up overarching term goals, map out project timelines, and dynamically align weekly tasks with full-term academic outcomes.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-secondary bg-opacity-25 rounded-3 h-100 border border-secondary">
+                        <h5 class="fw-bold text-danger">🛡️ Smart Procrastination Detector</h5>
+                        <p class="small text-light opacity-75 mb-0">
+                            Calculates a live Procrastination Score (0–100) based on overdue tasks and pending workloads, triggering 2-minute-rule intervention tips.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-secondary bg-opacity-25 rounded-3 h-100 border border-secondary">
+                        <h5 class="fw-bold text-info">⚖️ Study vs. Distraction Analyzer</h5>
+                        <p class="small text-light opacity-75 mb-0">
+                            Monitors session efficiency by logging focus techniques versus delay indicators, guiding students back to optimal focus zones.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tech Stack & Developer Info -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-success mb-3">🛠️ Technology Stack</h5>
+                    <ul class="list-group list-group-flush small">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Frontend</span>
+                            <span class="fw-semibold">HTML5, CSS3, Bootstrap 5</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Backend</span>
+                            <span class="fw-semibold">Python 3, Django Framework</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Database</span>
+                            <span class="fw-semibold">SQLite / MySQL</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>AI Logic</span>
+                            <span class="fw-semibold">IBM Bob Inspired Rule-Based Engine</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-primary mb-3">👤 Developer Profile</h5>
+                    <p class="mb-2"><strong>Developer:</strong> Sohel Mallik</p>
+                    <p class="text-muted small mb-3">
+                        Engineered as an end-to-end Django web application demonstrating Model-View-Template (MVT) architecture, secure authentication, complete CRUD management, and personal productivity AI tooling.
+                    </p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <span class="badge bg-light text-dark border">Django</span>
+                        <span class="badge bg-light text-dark border">Python</span>
+                        <span class="badge bg-light text-dark border">Bootstrap 5</span>
+                        <span class="badge bg-light text-dark border">IBM Bob Architecture</span>
+                        <span class="badge bg-light text-dark border">AI Engine</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

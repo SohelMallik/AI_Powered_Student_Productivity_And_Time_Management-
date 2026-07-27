@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="text-center mb-4">
+                <div style="font-size:3rem;">🎓</div>
+                <h4 class="fw-bold">Create Your Free Account</h4>
+                <p class="text-muted small">Join StudyAI and get access to all 15 AI productivity tools instantly</p>
+            </div>
+
+            <!-- Feature pills -->
+            <div class="d-flex justify-content-center gap-2 flex-wrap mb-4">
+                <span class="tech-badge">📋 Task Management</span>
+                <span class="tech-badge">🔔 Smart Reminders</span>
+                <span class="tech-badge">🤖 AI Tips</span>
+                <span class="tech-badge">📅 Study Planner</span>
+                <span class="tech-badge">🗓️ Semester Plans</span>
+                <span class="tech-badge">📈 Progress Analysis</span>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header text-center fw-semibold" style="background:linear-gradient(135deg,#1a1f36,#2d3561);color:#fff;">
+                    Create Student Account
+                </div>
+                <div class="card-body p-4">
+
+                    {% if messages %}{% for m in messages %}
+                    <div class="alert alert-{{ m.tags }} alert-dismissible fade show">
+                        {{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>{% endfor %}{% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label fw-semibold small">Username</label>
+                            <input type="text" class="form-control" id="username" name="username"
+                                   placeholder="Choose a username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold small">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   placeholder="your@email.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password1" class="form-label fw-semibold small">Password</label>
+                            <input type="password" class="form-control" id="password1" name="password1"
+                                   placeholder="Create a password" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="password2" class="form-label fw-semibold small">Confirm Password</label>
+                            <input type="password" class="form-control" id="password2" name="password2"
+                                   placeholder="Repeat your password" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">Create Free Account</button>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="card-footer text-center small text-muted py-3">
+                    Already have an account?
+                    <a href="{% url 'login' %}" class="fw-semibold text-primary">Login here</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
