@@ -108,6 +108,9 @@ USE_TZ        = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Don't auto-redirect /api/foo → /api/foo/ (causes 301 loops in browser)
+APPEND_SLASH = False
+
 # Pomodoro defaults
 POMODORO_WORK_MINUTES  = int(os.getenv('POMODORO_WORK_MINUTES',  25))
 POMODORO_BREAK_MINUTES = int(os.getenv('POMODORO_BREAK_MINUTES', 5))
