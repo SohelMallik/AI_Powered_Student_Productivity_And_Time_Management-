@@ -1,6 +1,7 @@
 /* ============================================================
    Main App – Routing, Navigation, Initialization
    ============================================================ */
+
 const PAGE_RENDERERS = {
   'dashboard'  : renderDashboard,
   'tasks'      : renderTasksPage,
@@ -27,60 +28,72 @@ let currentPage = 'dashboard';
 
 // ── Navigate ──────────────────────────────────────────────
 function navigateTo(page) {
-  if (!PAGE_RENDERERS[page]) return;
+  if (!PAGE_RENDERERS[page]) page = 'dashboard';
 
-  // Update nav
-  qsa('.nav-item').forEach(item => {
-    item.classList.toggle('active', item.dataset.page === page);
-  });
+  // Update nav active state
+  qsa('.nav-item').forEach(item =>
+    item.classList.toggle('active', item.dataset.page === page)
+  );
 
-  // Swap page
+  // Swap visible page
   qsa('.page').forEach(p => p.classList.remove('active'));
   const pageEl = document.getElementById(`page-${page}`);
   if (pageEl) pageEl.classList.add('active');
 
-  // Update title
-  document.getElementById('topbarTitle').textContent = PAGE_TITLES[page] || page;
+  // Update topbar title
+  const titleEl = document.getElementById('topbarTitle');
+  if (titleEl) titleEl.textContent = PAGE_TITLES[page] || page;
+
   currentPage = page;
 
-  // Render
-  PAGE_RENDERERS[page]().catch(console.error);
+  // Render page content
+  PAGE_RENDERERS[page]().catch(err => {
+    console.error(`[App] Error rendering ${page}:`, err);
+  });
 
   // Close sidebar on mobile
   if (window.innerWidth <= 768) {
-    document.getElementById('sidebar').classList.remove('open');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.remove('open');
   }
 
-  // Update URL hash (no reload)
+  // Sync URL hash without reloading
   history.replaceState(null, '', `#${page}`);
 }
 
 // ── Init ──────────────────────────────────────────────────
 async function initApp() {
-  // Sidebar nav links
+  // Wire up sidebar nav
   qsa('.nav-item[data-page]').forEach(item => {
-    item.addEventListener('click', (e) => {
+    item.addEventListener('click', e => {
       e.preventDefault();
       navigateTo(item.dataset.page);
     });
   });
 
-  // Mobile menu toggle
+  // Mobile hamburger toggle
   document.getElementById('menuToggle').addEventListener('click', () => {
     document.getElementById('sidebar').classList.toggle('open');
   });
 
-  // Close sidebar on backdrop tap (mobile)
+  // Close sidebar when tapping main content on mobile
   document.getElementById('mainContent').addEventListener('click', () => {
     if (window.innerWidth <= 768) {
       document.getElementById('sidebar').classList.remove('open');
     }
   });
 
+  // Handle browser back/forward
+  window.addEventListener('popstate', () => {
+    const hashPage = (location.hash || '#dashboard').replace('#', '');
+    navigateTo(PAGE_RENDERERS[hashPage] ? hashPage : 'dashboard');
+  });
+
   // Run AI Analysis button
   document.getElementById('analyzeBtn').addEventListener('click', async () => {
-    document.getElementById('analyzeBtn').textContent = '⏳ Analyzing...';
-    document.getElementById('analyzeBtn').disabled = true;
+    const btn = document.getElementById('analyzeBtn');
+    btn.textContent = '⏳ Analyzing…';
+    btn.disabled    = true;
     try {
       await AIAPI.analyze();
       showToast('🤖 AI analysis complete!', 'success');
@@ -90,24 +103,29 @@ async function initApp() {
     } catch (err) {
       showToast('Analysis failed: ' + err.message, 'error');
     } finally {
-      document.getElementById('analyzeBtn').textContent = '🤖 Run AI Analysis';
-      document.getElementById('analyzeBtn').disabled = false;
+      btn.textContent = '🤖 Run AI Analysis';
+      btn.disabled    = false;
     }
   });
 
-  // Load user profile for avatar
+  // Load profile for avatar initial + streak
   try {
     const profileRes = await AIAPI.getProfile();
     const name = profileRes.data?.name || 'Student';
     document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-    // Update streak badge
     const overview = await AnalyticsAPI.overview();
-    document.getElementById('streakCount').textContent = overview.data?.streakDays || 0;
-  } catch { /* silent */ }
+    document.getElementById('streakCount').textContent = overview.data?.streakDays ?? 0;
+  } catch { /* silent — app still works without profile */ }
 
-  // Determine initial page from hash
+  // Navigate to initial page from URL hash
   const hashPage = (location.hash || '#dashboard').replace('#', '');
   navigateTo(PAGE_RENDERERS[hashPage] ? hashPage : 'dashboard');
+
+  // Hide loader, show app shell
+  const loader   = document.getElementById('appLoader');
+  const appShell = document.getElementById('appShell');
+  if (loader)   { loader.style.opacity = '0'; setTimeout(() => (loader.style.display = 'none'), 300); }
+  if (appShell) { appShell.style.display = 'flex'; appShell.style.width = '100%'; appShell.style.minHeight = '100vh'; }
 }
 
 // ── Boot ─────────────────────────────────────────────────

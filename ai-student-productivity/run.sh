@@ -1,63 +1,57 @@
 #!/usr/bin/env bash
 # ============================================================
-# AI Student Productivity – ONE COMMAND SETUP & RUN (Linux/Mac)
-# chmod +x run.sh && ./run.sh
+#  AI Student Productivity Assistant
+#  One-command setup and launch for Linux / macOS
+#  Usage:  chmod +x run.sh && ./run.sh
 # ============================================================
-
 set -e
+
 echo ""
-echo "========================================================"
-echo "  AI Student Productivity - Setup and Launch"
-echo "========================================================"
+echo " ╔══════════════════════════════════════════════════╗"
+echo " ║   StudyAI — AI Student Productivity Assistant   ║"
+echo " ╚══════════════════════════════════════════════════╝"
 echo ""
 
-# ── Check Python ─────────────────────────────────────────────
-if ! command -v python3 &>/dev/null; then
-  echo "ERROR: python3 not found. Install Python 3.10+"
-  exit 1
-fi
-echo "[1/5] Python: $(python3 --version)"
-
-# ── Virtual environment ───────────────────────────────────────
-if [ ! -d "venv" ]; then
-  echo "[2/5] Creating virtual environment..."
-  python3 -m venv venv
-else
-  echo "[2/5] venv exists, skipping."
+# ── Check Node.js ─────────────────────────────────────────
+if ! command -v node &>/dev/null; then
+    echo " ERROR: Node.js is not installed."
+    echo ""
+    echo " Install it from: https://nodejs.org  (choose LTS)"
+    echo " Or via nvm:  https://github.com/nvm-sh/nvm"
+    exit 1
 fi
 
-# ── Activate ──────────────────────────────────────────────────
-# shellcheck disable=SC1091
-source venv/bin/activate
-echo "[3/5] Virtual environment activated."
+NODE_VER=$(node --version)
+echo " [1/4] Node.js found: $NODE_VER"
 
-# ── Install deps ─────────────────────────────────────────────
-echo "[4/5] Installing packages..."
-pip install -r requirements.txt -q
+# ── Install dependencies ──────────────────────────────────
+echo " [2/4] Installing npm dependencies..."
+npm install --silent
+echo "        Done."
 
-# ── Migrate ──────────────────────────────────────────────────
-echo "[5/5] Running migrations..."
+# ── Create data directory ─────────────────────────────────
+echo " [3/4] Setting up data directory..."
 mkdir -p data
-python manage.py migrate --run-syncdb
+echo "        Done."
 
-# ── Admin user ───────────────────────────────────────────────
-python manage.py shell -c "
-from django.contrib.auth import get_user_model
-U = get_user_model()
-if not U.objects.filter(username='admin').exists():
-    U.objects.create_superuser('admin','admin@studyai.local','admin123')
-    print('Admin created: admin / admin123')
-else:
-    print('Admin already exists.')
-"
+# ── Copy .env if missing ──────────────────────────────────
+if [ ! -f ".env" ] && [ -f ".env.example" ]; then
+    cp .env.example .env
+    echo "        .env created from .env.example"
+fi
+
+# ── Seed demo data ────────────────────────────────────────
+echo " [4/4] Seeding demo data..."
+node scripts/seed.js || echo "        (Seed skipped — continuing)"
 
 echo ""
-echo "========================================================"
-echo "  App running at   → http://localhost:8000"
-echo "  Admin panel at   → http://localhost:8000/admin"
-echo "  Login: admin / admin123"
-echo "  Press CTRL+C to stop"
-echo "========================================================"
+echo " ╔══════════════════════════════════════════════════╗"
+echo " ║   App is starting...                            ║"
+echo " ║                                                  ║"
+echo " ║   Open in browser:  http://localhost:3000        ║"
+echo " ║   Press CTRL+C to stop the server               ║"
+echo " ╚══════════════════════════════════════════════════╝"
 echo ""
 
-python manage.py runserver 8000
+# ── Start server ──────────────────────────────────────────
+node server/index.js

@@ -3,123 +3,145 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Student Productivity Assistant</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/dashboard.css" />
-  <link rel="stylesheet" href="css/components.css" />
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <meta name="description" content="AI-Powered Student Productivity: Task Manager, Study Tracker, Pomodoro Timer, Semester Planner and AI Insights — all in one app." />
+  <meta name="theme-color" content="#3b82d4" />
+  <title>StudyAI — AI Student Productivity Assistant</title>
+
+  <!-- Favicon (inline SVG data URI) -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%233b82d4'/><path d='M10 22 L16 10 L22 22 M13 18 H19' stroke='white' stroke-width='2.5' stroke-linecap='round' fill='none'/></svg>" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/components.css" />
 </head>
 <body>
-  <!-- ── Sidebar ──────────────────────────────────────────── -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="16" fill="#3b82d4"/>
-        <path d="M10 22 L16 10 L22 22 M13 18 H19" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
-      <span class="brand-name">StudyAI</span>
-    </div>
-    <nav class="sidebar-nav">
-      <a href="#dashboard"   class="nav-item active" data-page="dashboard">
-        <span class="nav-icon">⊞</span><span>Dashboard</span>
-      </a>
-      <a href="#tasks"       class="nav-item" data-page="tasks">
-        <span class="nav-icon">✓</span><span>Tasks</span>
-      </a>
-      <a href="#schedule"    class="nav-item" data-page="schedule">
-        <span class="nav-icon">⊙</span><span>Schedule</span>
-      </a>
-      <a href="#study"       class="nav-item" data-page="study">
-        <span class="nav-icon">⏱</span><span>Study Tracker</span>
-      </a>
-      <a href="#semester"    class="nav-item" data-page="semester">
-        <span class="nav-icon">📅</span><span>Semester Planner</span>
-      </a>
-      <a href="#analytics"   class="nav-item" data-page="analytics">
-        <span class="nav-icon">📊</span><span>Analytics</span>
-      </a>
-      <a href="#ai-insights" class="nav-item" data-page="ai-insights">
-        <span class="nav-icon">🤖</span><span>AI Insights</span>
-      </a>
-      <a href="#settings"    class="nav-item" data-page="settings">
-        <span class="nav-icon">⚙</span><span>Settings</span>
-      </a>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="streak-badge" id="streakBadge">
-        <span class="streak-fire">🔥</span>
-        <span id="streakCount">0</span> day streak
-      </div>
-    </div>
-  </aside>
 
-  <!-- ── Main ─────────────────────────────────────────────── -->
-  <main class="main-content" id="mainContent">
-    <!-- Top bar -->
-    <header class="topbar">
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
-      <div class="topbar-title" id="topbarTitle">Dashboard</div>
-      <div class="topbar-actions">
-        <button class="btn btn-primary btn-sm" id="analyzeBtn">🤖 Run AI Analysis</button>
-        <div class="user-avatar" id="userAvatar">S</div>
-      </div>
-    </header>
-
-    <!-- Pages -->
-    <div class="page active" id="page-dashboard">
-      <div id="dashboard-root"></div>
-    </div>
-    <div class="page" id="page-tasks">
-      <div id="tasks-root"></div>
-    </div>
-    <div class="page" id="page-schedule">
-      <div id="schedule-root"></div>
-    </div>
-    <div class="page" id="page-study">
-      <div id="study-root"></div>
-    </div>
-    <div class="page" id="page-semester">
-      <div id="semester-root"></div>
-    </div>
-    <div class="page" id="page-analytics">
-      <div id="analytics-root"></div>
-    </div>
-    <div class="page" id="page-ai-insights">
-      <div id="ai-root"></div>
-    </div>
-    <div class="page" id="page-settings">
-      <div id="settings-root"></div>
-    </div>
-  </main>
-
-  <!-- ── Global Modal ─────────────────────────────────────── -->
-  <div class="modal-backdrop hidden" id="modalBackdrop">
-    <div class="modal" id="globalModal">
-      <div class="modal-header">
-        <h3 class="modal-title" id="modalTitle">Modal</h3>
-        <button class="modal-close" id="modalClose">✕</button>
-      </div>
-      <div class="modal-body" id="modalBody"></div>
-    </div>
+  <!-- ═══════════════════════════════════════════════════════
+       INITIAL LOADING SCREEN  (hidden as soon as app boots)
+  ═══════════════════════════════════════════════════════ -->
+  <div id="appLoader">
+    <svg viewBox="0 0 32 32" fill="none" width="48" height="48">
+      <circle cx="16" cy="16" r="16" fill="#3b82d4"/>
+      <path d="M10 22 L16 10 L22 22 M13 18 H19"
+            stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <div class="loader-title">StudyAI</div>
+    <div class="loader-spinner"></div>
+    <div class="loader-text">Loading your workspace…</div>
   </div>
 
-  <!-- ── Toast ────────────────────────────────────────────── -->
-  <div class="toast-container" id="toastContainer"></div>
+  <!-- ═══════════════════════════════════════════════════════
+       APP SHELL  (invisible until loader hides)
+  ═══════════════════════════════════════════════════════ -->
+  <div id="appShell" style="display:none">
 
-  <!-- ── Scripts ──────────────────────────────────────────── -->
-  <script src="js/api.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/components/modal.js"></script>
-  <script src="js/components/toast.js"></script>
-  <script src="js/components/chart.js"></script>
-  <script src="js/pages/dashboard.js"></script>
-  <script src="js/pages/tasks.js"></script>
-  <script src="js/pages/schedule.js"></script>
-  <script src="js/pages/study.js"></script>
-  <script src="js/pages/semester.js"></script>
-  <script src="js/pages/analytics.js"></script>
-  <script src="js/pages/aiInsights.js"></script>
-  <script src="js/pages/settings.js"></script>
-  <script src="js/app.js"></script>
+    <!-- SIDEBAR ─────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="16" fill="#3b82d4"/>
+          <path d="M10 22 L16 10 L22 22 M13 18 H19"
+                stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="brand-name">StudyAI</span>
+      </div>
+
+      <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+        <a href="#dashboard"   class="nav-item active" data-page="dashboard"   aria-label="Dashboard">
+          <span class="nav-icon">⊞</span><span>Dashboard</span>
+        </a>
+        <a href="#tasks"       class="nav-item" data-page="tasks"       aria-label="Tasks">
+          <span class="nav-icon">✓</span><span>Tasks</span>
+        </a>
+        <a href="#schedule"    class="nav-item" data-page="schedule"    aria-label="Schedule">
+          <span class="nav-icon">⊙</span><span>Schedule</span>
+        </a>
+        <a href="#study"       class="nav-item" data-page="study"       aria-label="Study Tracker">
+          <span class="nav-icon">⏱</span><span>Study Tracker</span>
+        </a>
+        <a href="#semester"    class="nav-item" data-page="semester"    aria-label="Semester Planner">
+          <span class="nav-icon">📅</span><span>Semester Planner</span>
+        </a>
+        <a href="#analytics"   class="nav-item" data-page="analytics"   aria-label="Analytics">
+          <span class="nav-icon">📊</span><span>Analytics</span>
+        </a>
+        <a href="#ai-insights" class="nav-item" data-page="ai-insights" aria-label="AI Insights">
+          <span class="nav-icon">🤖</span><span>AI Insights</span>
+        </a>
+        <a href="#settings"    class="nav-item" data-page="settings"    aria-label="Settings">
+          <span class="nav-icon">⚙</span><span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="streak-badge">
+          <span class="streak-fire">🔥</span>
+          <span id="streakCount">0</span>&nbsp;day streak
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT ────────────────────────────────────── -->
+    <main class="main-content" id="mainContent" role="main">
+
+      <!-- Top bar -->
+      <header class="topbar">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">☰</button>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" id="analyzeBtn" aria-label="Run AI Analysis">
+            🤖 Run AI Analysis
+          </button>
+          <div class="user-avatar" id="userAvatar" title="Profile">S</div>
+        </div>
+      </header>
+
+      <!-- Page containers (only active one is shown) -->
+      <div class="page active" id="page-dashboard">  <div id="dashboard-root"></div></div>
+      <div class="page"        id="page-tasks">       <div id="tasks-root"></div></div>
+      <div class="page"        id="page-schedule">    <div id="schedule-root"></div></div>
+      <div class="page"        id="page-study">       <div id="study-root"></div></div>
+      <div class="page"        id="page-semester">    <div id="semester-root"></div></div>
+      <div class="page"        id="page-analytics">   <div id="analytics-root"></div></div>
+      <div class="page"        id="page-ai-insights"> <div id="ai-root"></div></div>
+      <div class="page"        id="page-settings">    <div id="settings-root"></div></div>
+    </main>
+
+    <!-- GLOBAL MODAL ────────────────────────────────────── -->
+    <div class="modal-backdrop hidden" id="modalBackdrop" role="dialog" aria-modal="true">
+      <div class="modal" id="globalModal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle"></h3>
+          <button class="modal-close" id="modalClose" aria-label="Close modal">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  </div><!-- /#appShell -->
+
+  <!-- ═══════════════════════════════════════════════════════
+       JAVASCRIPT  — load order matters
+  ═══════════════════════════════════════════════════════ -->
+  <script src="/js/api.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/chart.js"></script>
+  <script src="/js/pages/dashboard.js"></script>
+  <script src="/js/pages/tasks.js"></script>
+  <script src="/js/pages/schedule.js"></script>
+  <script src="/js/pages/study.js"></script>
+  <script src="/js/pages/semester.js"></script>
+  <script src="/js/pages/analytics.js"></script>
+  <script src="/js/pages/aiInsights.js"></script>
+  <script src="/js/pages/settings.js"></script>
+  <script src="/js/app.js"></script>
+
 </body>
 </html>

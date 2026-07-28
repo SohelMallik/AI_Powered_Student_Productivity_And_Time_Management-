@@ -73,7 +73,10 @@ DATABASES = {
 # ── Static + Media ────────────────────────────────────────────
 STATIC_URL   = '/static/'
 STATIC_ROOT  = BASE_DIR / 'staticfiles'
+# Serve everything inside public/ as static files at /static/
 STATICFILES_DIRS = [BASE_DIR / 'public']
+# Also allow DEBUG-mode static serving always
+WHITENOISE_ROOT  = BASE_DIR / 'public'
 
 MEDIA_URL  = '/media/'
 MEDIA_ROOT = BASE_DIR / 'data' / 'media'
