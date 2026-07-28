@@ -1,0 +1,399 @@
+/* ============================================================
+   Dashboard.module.css  ★ Full Animation + Vivid Colours
+   ============================================================ */
+
+/* ── Keyframes ──────────────────────────────────────────── */
+@keyframes slideUp   { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slideLeft { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+@keyframes fadeIn    { from { opacity:0; } to { opacity:1; } }
+@keyframes countUp   { from { opacity:0; transform:translateY(12px) scale(.9); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes bounceIn  { 0% { opacity:0; transform:scale(.5); } 65% { transform:scale(1.1); } 85% { transform:scale(.97); } 100% { opacity:1; transform:scale(1); } }
+@keyframes shimmer   { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
+@keyframes spin      { to { transform:rotate(360deg); } }
+@keyframes tickPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.06); } }
+@keyframes taskIn    { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
+@keyframes pomPulse  { 0%,100% { filter:drop-shadow(0 4px 16px rgba(99,102,241,.3)); } 50% { filter:drop-shadow(0 4px 28px rgba(99,102,241,.55)); } }
+
+/* ── Loading ─────────────────────────────────────────────── */
+.loadingScreen {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: center;
+  padding        : 72px 24px;
+  gap            : 14px;
+  animation      : fadeIn .3s ease;
+}
+.loadingSpinner {
+  width        : 36px;
+  height       : 36px;
+  border       : 3.5px solid rgba(99,102,241,.2);
+  border-top   : 3.5px solid #6366f1;
+  border-radius: 50%;
+  animation    : spin .7s linear infinite;
+}
+.loadingText {
+  font-size  : 14px;
+  color      : #6366f1;
+  font-weight: 600;
+}
+
+/* ── Page ────────────────────────────────────────────────── */
+.page { animation: fadeIn .4s ease; }
+
+/* ── Page Title ──────────────────────────────────────────── */
+.pageTitle {
+  display      : flex;
+  align-items  : center;
+  gap          : 10px;
+  font-size    : 26px;
+  font-weight  : 900;
+  color        : #1a202c;
+  margin-bottom: 24px;
+  animation    : slideUp .35s ease both;
+}
+.pageTitleAccent {
+  background             : linear-gradient(90deg,#6366f1,#a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Stats Grid ──────────────────────────────────────────── */
+.statsGrid {
+  display              : grid;
+  grid-template-columns: repeat(4,1fr);
+  gap                  : 18px;
+  margin-bottom        : 22px;
+}
+@media(max-width:1100px) { .statsGrid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:640px)  { .statsGrid { grid-template-columns:1fr; } }
+
+/* ── Stat Card ───────────────────────────────────────────── */
+.statCard {
+  background   : #ffffff;
+  border       : 1.5px solid rgba(99,102,241,.13);
+  border-radius: 18px;
+  padding      : 20px 18px;
+  display      : flex;
+  align-items  : flex-start;
+  gap          : 15px;
+  position     : relative;
+  overflow     : hidden;
+  cursor       : default;
+  box-shadow   : 0 1px 6px rgba(99,102,241,.06);
+  transition   : transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s, border-color .25s;
+  animation    : slideUp .45s cubic-bezier(.4,0,.2,1) both;
+}
+.statCard::before {
+  content   : '';
+  position  : absolute;
+  top:-60%; left:-60%;
+  width:120%; height:120%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.55), transparent 65%);
+  pointer-events: none;
+}
+.statCard:hover {
+  transform   : translateY(-5px);
+  box-shadow  : 0 10px 36px rgba(99,102,241,.18);
+  border-color: rgba(99,102,241,.3);
+}
+.statCard:hover .statIcon { transform: scale(1.15) rotate(-8deg); }
+
+.statIcon {
+  width          : 52px;
+  height         : 52px;
+  border-radius  : 14px;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 26px;
+  flex-shrink    : 0;
+  transition     : transform .25s cubic-bezier(.4,0,.2,1);
+}
+.statInfo { min-width: 0; }
+.statLabel {
+  font-size     : 11px;
+  font-weight   : 700;
+  color         : #64748b;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom : 2px;
+}
+.statValue {
+  font-size  : 28px;
+  font-weight: 900;
+  color      : #1a202c;    /* always solid dark, always readable */
+  line-height: 1.1;
+  animation  : countUp .5s cubic-bezier(.4,0,.2,1) both;
+}
+.statSub {
+  font-size  : 12px;
+  margin-top : 3px;
+  font-weight: 600;
+}
+
+/* ── Goal Card ───────────────────────────────────────────── */
+.goalCard {
+  background    : linear-gradient(135deg, #f0f0fe, #f5f3ff);
+  border        : 1.5px solid rgba(99,102,241,.2);
+  border-radius : 18px;
+  padding       : 20px 22px;
+  margin-bottom : 22px;
+  animation     : slideUp .4s .08s cubic-bezier(.4,0,.2,1) both;
+}
+.goalHeader {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  margin-bottom  : 14px;
+}
+.goalTitle {
+  font-size  : 15px;
+  font-weight: 800;
+  color      : #3730a3;   /* vivid, always readable */
+}
+.goalSub {
+  font-size  : 12px;
+  color      : #6366f1;
+  font-weight: 600;
+  margin-top : 2px;
+}
+.goalBadge {
+  font-size     : 14px;
+  font-weight   : 900;
+  padding       : 5px 14px;
+  border-radius : 999px;
+  color         : #fff;
+  background    : linear-gradient(135deg,#6366f1,#8b5cf6);
+  box-shadow    : 0 2px 10px rgba(99,102,241,.4);
+  animation     : bounceIn .55s .25s cubic-bezier(.4,0,.2,1) both;
+  white-space   : nowrap;
+}
+
+/* ── Progress Bar ────────────────────────────────────────── */
+.progressBar {
+  background   : rgba(99,102,241,.12);
+  border-radius: 999px;
+  height       : 10px;
+  overflow     : hidden;
+}
+.progressFill {
+  height        : 100%;
+  border-radius : 999px;
+  background-size: 200% 100%;
+  transition    : width .8s cubic-bezier(.4,0,.2,1);
+  position      : relative;
+  overflow      : hidden;
+  animation     : shimmer 2.5s linear infinite;
+}
+.progressFill::after {
+  content  : '';
+  position : absolute;
+  inset    : 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* ── Dashboard Grid ──────────────────────────────────────── */
+.dashGrid {
+  display              : grid;
+  grid-template-columns: 2fr 1fr;
+  gap                  : 22px;
+  align-items          : start;
+}
+@media(max-width:900px) { .dashGrid { grid-template-columns:1fr; } }
+
+.leftCol,
+.rightCol { display: flex; flex-direction: column; gap: 18px; }
+
+/* ── Card ────────────────────────────────────────────────── */
+.card {
+  background   : #ffffff;
+  border       : 1.5px solid rgba(99,102,241,.1);
+  border-radius: 18px;
+  padding      : 20px 22px;
+  box-shadow   : 0 1px 6px rgba(99,102,241,.06);
+  transition   : transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s;
+  animation    : slideUp .45s cubic-bezier(.4,0,.2,1) both;
+}
+.card:hover {
+  transform : translateY(-3px);
+  box-shadow: 0 8px 28px rgba(99,102,241,.13);
+}
+
+.cardHeader {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  margin-bottom  : 16px;
+}
+.cardTitle {
+  font-size  : 15px;
+  font-weight: 800;
+  color      : #1a202c;   /* solid dark — always readable */
+}
+
+/* ── Badges ──────────────────────────────────────────────── */
+.badgeRed {
+  background  : #fee2e2;
+  color       : #991b1b;
+  padding     : 3px 10px;
+  border-radius:999px;
+  font-size   : 11px;
+  font-weight : 800;
+}
+.badgePhase {
+  padding     : 4px 12px;
+  border-radius:999px;
+  font-size   : 11px;
+  font-weight : 800;
+  transition  : background .3s;
+}
+
+/* ── Alert Banner ────────────────────────────────────────── */
+.alertBanner {
+  border-radius: 12px;
+  padding      : 12px 15px;
+  display      : flex;
+  align-items  : flex-start;
+  gap          : 10px;
+  margin-bottom: 10px;
+  font-size    : 13px;
+  font-weight  : 600;
+  line-height  : 1.5;
+  border-left  : 4px solid transparent;
+  transition   : transform .22s, box-shadow .22s;
+  animation    : slideLeft .35s cubic-bezier(.4,0,.2,1) both;
+}
+.alertBanner:hover {
+  transform : translateX(4px);
+  box-shadow: 2px 0 12px rgba(99,102,241,.1);
+}
+.alertIcon { flex-shrink:0; font-size:16px; }
+
+.allClear {
+  font-size  : 13px;
+  color      : #10b981;
+  font-weight: 700;
+  padding    : 8px 0;
+}
+
+/* ── Task Row ────────────────────────────────────────────── */
+.taskRow {
+  display      : flex;
+  align-items  : center;
+  gap          : 12px;
+  padding      : 11px 12px;
+  background   : #f8faff;
+  border-radius: 12px;
+  border       : 1.5px solid transparent;
+  margin-bottom: 8px;
+  cursor       : pointer;
+  transition   : all .22s cubic-bezier(.4,0,.2,1);
+  animation    : taskIn .35s cubic-bezier(.4,0,.2,1) both;
+}
+.taskRow:hover {
+  border-color: rgba(99,102,241,.3);
+  background  : rgba(99,102,241,.06);
+  transform   : translateX(4px);
+  box-shadow  : 0 3px 14px rgba(99,102,241,.12);
+}
+.taskRow:hover .taskBar { height: 42px; }
+
+.taskBar {
+  width        : 4px;
+  height       : 36px;
+  border-radius: 4px;
+  flex-shrink  : 0;
+  transition   : height .22s;
+}
+.taskInfo { flex: 1; min-width: 0; }
+.taskTitle {
+  font-weight  : 700;
+  font-size    : 13px;
+  color        : #1a202c;   /* always readable */
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+}
+.taskMeta {
+  font-size : 11px;
+  color     : #64748b;
+  margin-top: 2px;
+  font-weight: 500;
+}
+.taskDeadline {
+  font-size  : 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Pomodoro ────────────────────────────────────────────── */
+.pomWrap   { text-align: center; padding: 4px 0; }
+.pomRing   {
+  position : relative;
+  width    : 136px;
+  height   : 136px;
+  margin   : 0 auto 10px;
+  animation: pomPulse 3s ease-in-out infinite;
+}
+.pomLabel  {
+  position       : absolute;
+  inset          : 0;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 22px;
+  font-weight    : 900;
+  color          : #1a202c;   /* solid — never invisible */
+  letter-spacing : -1px;
+  animation      : tickPulse 1s ease-in-out infinite;
+}
+.pomPhase {
+  display       : inline-block;
+  font-size     : 11px;
+  font-weight   : 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding       : 4px 14px;
+  border-radius : 999px;
+  margin-bottom : 8px;
+}
+.pomCycles {
+  font-size  : 13px;
+  color      : #64748b;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.pomControls { display: flex; gap: 10px; justify-content: center; }
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btnPrimary {
+  padding      : 8px 18px;
+  background   : linear-gradient(135deg,#6366f1,#8b5cf6);
+  color        : #fff;
+  border       : none;
+  border-radius: 9px;
+  font-weight  : 700;
+  font-size    : 13px;
+  cursor       : pointer;
+  transition   : all .22s cubic-bezier(.4,0,.2,1);
+  box-shadow   : 0 2px 10px rgba(99,102,241,.35);
+}
+.btnPrimary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,.5); }
+.btnPrimary:disabled { opacity:.5; cursor:default; transform:none; }
+
+.btnOutline {
+  padding      : 8px 18px;
+  background   : rgba(99,102,241,.07);
+  border       : 1.5px solid rgba(99,102,241,.2);
+  border-radius: 9px;
+  font-weight  : 700;
+  font-size    : 13px;
+  color        : #4338ca;
+  cursor       : pointer;
+  transition   : all .22s;
+}
+.btnOutline:hover { background: rgba(99,102,241,.14); border-color: #6366f1; }

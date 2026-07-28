@@ -1,0 +1,66 @@
+/* ============================================================
+   React App Global Styles  ★ Enhanced Theme
+   ============================================================ */
+
+/* ── Keyframe Animations ─────────────────────────────────── */
+@keyframes spin           { to { transform: rotate(360deg); } }
+@keyframes fadeIn         { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp        { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideDown      { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideLeft      { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes popIn          { 0% { opacity:0; transform: scale(.85); } 60% { transform: scale(1.04); } 100% { opacity:1; transform: scale(1); } }
+@keyframes gradient-shift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes skeleton-wave  { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@keyframes float          { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes glow-accent    { 0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); } 50% { box-shadow: 0 0 18px 4px rgba(99,102,241,.22); } }
+@keyframes pulse-ring     { 0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,.35); } 50% { box-shadow: 0 0 0 10px rgba(99,102,241,0); } }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Core palette */
+  --accent       : #6366f1;
+  --accent-dk    : #4f46e5;
+  --accent-lt    : #e0e7ff;
+  --success      : #10b981;
+  --warning      : #f59e0b;
+  --danger       : #ef4444;
+  --purple       : #a855f7;
+  --teal         : #14b8a6;
+  --pink         : #ec4899;
+  --orange       : #f97316;
+  --bg           : #f3f4f8;
+  --surface      : #ffffff;
+  --border       : #e2e8f0;
+  --text         : #1a202c;
+  --muted        : #64748b;
+
+  /* Gradients */
+  --grad-primary  : linear-gradient(135deg, #6366f1, #8b5cf6);
+  --grad-success  : linear-gradient(135deg, #10b981, #34d399);
+  --grad-danger   : linear-gradient(135deg, #ef4444, #f97316);
+  --grad-warning  : linear-gradient(135deg, #f59e0b, #fbbf24);
+  --grad-sidebar  : linear-gradient(180deg, #1e1b4b 0%, #312e81 40%, #1e1b4b 100%);
+
+  /* Layout */
+  --radius       : 10px;
+  --radius-lg    : 16px;
+  --radius-xl    : 22px;
+  --shadow       : 0 1px 4px rgba(0,0,0,.07);
+  --shadow-md    : 0 4px 20px rgba(99,102,241,.12);
+  --shadow-lg    : 0 8px 32px rgba(99,102,241,.18);
+  --transition   : .22s cubic-bezier(.4,0,.2,1);
+  --font         : -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  background : var(--bg);
+  color      : var(--text);
+  font-size  : 14px;
+  line-height: 1.6;
+}
+
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: var(--font); }
+input, select, textarea { font-family: var(--font); font-size: 14px; }

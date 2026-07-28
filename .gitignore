@@ -1,0 +1,51 @@
+﻿# Node
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# Environment
+.env
+*.env.local
+*.env.production
+
+# Data (JSON persistence — keep directory, ignore generated files)
+data/*.json
+!data/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.pyc
+venv/
+.venv/
+env/
+staticfiles/
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Build outputs
+dist/
+build/
+react-app/node_modules/
+react-app/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage/
+.nyc_output/
