@@ -11,7 +11,7 @@ from django.test.utils import setup_test_environment
 setup_test_environment()
 
 c = Client()
-
+#print("  Running full webpage test...")
 print()
 print("=" * 65)
 print("  AI Student Productivity – Full Webpage Test")
