@@ -16,7 +16,7 @@ class TaskSerializer(serializers.ModelSerializer):
         from .ai_engine import calculate_priority
         return calculate_priority(obj)
 
-#SchudleSlot
+#ScheduleSlot
 class ScheduleSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model  = ScheduleSlot
