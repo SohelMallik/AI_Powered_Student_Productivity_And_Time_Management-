@@ -52,7 +52,7 @@ def auth_register(request):
     login(request, user)
     return ok({'id': user.id, 'username': user.username, 'email': user.email})
 
-
+# For Login
 @csrf_exempt
 @api_view(['POST'])
 def auth_login(request):
