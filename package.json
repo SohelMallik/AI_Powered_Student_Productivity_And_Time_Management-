@@ -13,8 +13,8 @@
     "seed"      : "node scripts/seed.js || true",
     "setup"     : "node scripts/seed.js || true",
     "test"      : "jest --coverage",
-    "test:unit" : "jest tests/unit --coverage",
-    "test:int"  : "jest tests/integration --coverage",
+    "test:unit" : "jest tests/unit --coverage=false",
+    "test:int"  : "jest tests/integration --coverage=false",
     "lint"      : "eslint server/ --ext .js --fix"
   },
   "dependencies": {
