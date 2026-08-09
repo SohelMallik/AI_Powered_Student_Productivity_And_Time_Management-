@@ -315,4 +315,4 @@ docker-compose down
 ---
 
 ## 📄 License
-MIT — Built with ❤️ using IBM Bob
+MIT — Built with using IBM Bob
