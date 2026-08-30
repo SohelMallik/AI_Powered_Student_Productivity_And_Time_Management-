@@ -804,6 +804,7 @@ npm run lint     # ESLint on src/
 ---
 
 ## 📄 License
+<<<<<<< HEAD
 
 MIT — Copyright © 2026 [Sohel Mallik](https://github.com/mallikboos964)
 
@@ -827,3 +828,6 @@ Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before contributing.
 <div align="center">
   <sub>Built with ❤️ using IBM Bob · Node.js · Django · React · Docker</sub>
 </div>
+=======
+MIT — Built with using IBM Bob
+>>>>>>> 54694dc49e99f4234b2594b7cfe95db278ec867c
