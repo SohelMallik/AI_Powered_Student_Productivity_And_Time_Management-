@@ -15,6 +15,8 @@ const FILES = {
   analytics    : path.join(DATA_DIR, 'analytics.json'),
   aiInsights   : path.join(DATA_DIR, 'aiInsights.json'),
   userProfile  : path.join(DATA_DIR, 'userProfile.json'),
+  notes        : path.join(DATA_DIR, 'notes.json'),
+  flashcards   : path.join(DATA_DIR, 'flashcards.json'),
 };
 
 // ── Default empty structures ─────────────────────────────────
@@ -32,7 +34,12 @@ const DEFAULTS = {
     pomodoroBreak     : 5,
     preferredStudyTime: 'morning',
     subjects          : [],
+    darkMode          : false,
+    notificationsEnabled: true,
+    weekStartsOn      : 'monday',
   },
+  notes        : [],
+  flashcards   : [],
 };
 
 // ── Initialize – create directory + any missing files ────────
