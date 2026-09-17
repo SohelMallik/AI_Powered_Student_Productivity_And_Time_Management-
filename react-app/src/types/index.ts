@@ -128,6 +128,39 @@ export interface SemesterProgress {
   healthScore    : number;
 }
 
+export interface Note {
+  id       : string;
+  title    : string;
+  content  : string;
+  course   : string;
+  tags     : string[];
+  color    : string;
+  pinned   : boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FlashCard {
+  id          : string;
+  front       : string;
+  back        : string;
+  hint        : string;
+  timesShown  : number;
+  timesCorrect: number;
+  lastReviewed: string | null;
+  difficulty  : 'new' | 'easy' | 'medium' | 'hard';
+}
+
+export interface FlashDeck {
+  id         : string;
+  name       : string;
+  course     : string;
+  description: string;
+  cards      : FlashCard[];
+  createdAt  : string;
+  updatedAt  : string;
+}
+
 export interface ApiResponse<T> {
   success : boolean;
   data    : T;
