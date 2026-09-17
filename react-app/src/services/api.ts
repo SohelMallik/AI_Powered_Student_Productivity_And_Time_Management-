@@ -6,6 +6,7 @@ import type {
   Task, StudySession, ScheduleSlot, AnalyticsOverview,
   DailyLog, UserProfile, ProcrastinationItem, DistractionAnalysis,
   TimeSuggestion, SemesterProgress, Course, SemesterEvent, Goal,
+  Note, FlashDeck, FlashCard,
   ApiResponse,
 } from '@/types';
 
@@ -77,6 +78,29 @@ export const aiApi = {
   semesterProgress  : ()                      => api.get<ApiResponse<SemesterProgress>>('/ai/semester-progress'),
   getProfile        : ()                      => api.get<ApiResponse<UserProfile>>('/ai/profile'),
   updateProfile     : (data: Partial<UserProfile>) => api.put<ApiResponse<UserProfile>>('/ai/profile', data),
+};
+
+// ── Notes ─────────────────────────────────────────────────
+export const notesApi = {
+  getAll  : (params?: { course?: string; search?: string; pinned?: boolean }) =>
+              api.get<ApiResponse<Note[]>>('/notes', { params }),
+  getById : (id: string) => api.get<ApiResponse<Note>>(`/notes/${id}`),
+  create  : (data: Partial<Note>) => api.post<ApiResponse<Note>>('/notes', data),
+  update  : (id: string, data: Partial<Note>) => api.put<ApiResponse<Note>>(`/notes/${id}`, data),
+  pin     : (id: string) => api.patch<ApiResponse<Note>>(`/notes/${id}/pin`),
+  delete  : (id: string) => api.delete<ApiResponse<void>>(`/notes/${id}`),
+};
+
+// ── Flashcards ────────────────────────────────────────────
+export const flashcardsApi = {
+  getAll       : (params?: { course?: string }) => api.get<ApiResponse<FlashDeck[]>>('/flashcards', { params }),
+  getDeck      : (deckId: string) => api.get<ApiResponse<FlashDeck>>(`/flashcards/${deckId}`),
+  createDeck   : (data: Partial<FlashDeck>) => api.post<ApiResponse<FlashDeck>>('/flashcards', data),
+  deleteDeck   : (deckId: string) => api.delete<ApiResponse<void>>(`/flashcards/${deckId}`),
+  addCard      : (deckId: string, data: Partial<FlashCard>) => api.post<ApiResponse<FlashCard>>(`/flashcards/${deckId}/cards`, data),
+  reviewCard   : (deckId: string, cardId: string, result: { correct: boolean; difficulty: string }) =>
+                   api.patch<ApiResponse<FlashCard>>(`/flashcards/${deckId}/cards/${cardId}/review`, result),
+  deleteCard   : (deckId: string, cardId: string) => api.delete<ApiResponse<void>>(`/flashcards/${deckId}/cards/${cardId}`),
 };
 
 export default api;
