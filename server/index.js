@@ -17,6 +17,8 @@ const studySessionRouter = require('./routes/studySessions');
 const semesterRouter     = require('./routes/semester');
 const analyticsRouter    = require('./routes/analytics');
 const aiRouter           = require('./routes/ai');
+const notesRouter        = require('./routes/notes');
+const flashcardsRouter   = require('./routes/flashcards');
 
 const { initDataStore }    = require('./utils/dataStore');
 const { runDailyAIAnalysis } = require('./services/aiEngine');
@@ -54,13 +56,15 @@ app.use('/api/study-sessions', studySessionRouter);
 app.use('/api/semester',       semesterRouter);
 app.use('/api/analytics',      analyticsRouter);
 app.use('/api/ai',             aiRouter);
+app.use('/api/notes',          notesRouter);
+app.use('/api/flashcards',     flashcardsRouter);
 
 // ── Health Check ──────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
   res.json({
     status    : 'ok',
     timestamp : new Date().toISOString(),
-    version   : '1.0.0',
+    version   : '2.0.0',
     uptime    : Math.floor(process.uptime()),
     env       : process.env.NODE_ENV || 'development',
   });
