@@ -1,18 +1,20 @@
 // ============================================================
 // App Root – Router
 // ============================================================
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 
-const Dashboard   = lazy(() => import('@/pages/Dashboard'));
-const Tasks       = lazy(() => import('@/pages/Tasks'));
-const Schedule    = lazy(() => import('@/pages/Schedule'));
-const StudyTracker= lazy(() => import('@/pages/StudyTracker'));
-const Semester    = lazy(() => import('@/pages/Semester'));
-const Analytics   = lazy(() => import('@/pages/Analytics'));
-const AIInsights  = lazy(() => import('@/pages/AIInsights'));
-const Settings    = lazy(() => import('@/pages/Settings'));
+const Dashboard    = lazy(() => import('@/pages/Dashboard'));
+const Tasks        = lazy(() => import('@/pages/Tasks'));
+const Schedule     = lazy(() => import('@/pages/Schedule'));
+const StudyTracker = lazy(() => import('@/pages/StudyTracker'));
+const Semester     = lazy(() => import('@/pages/Semester'));
+const Analytics    = lazy(() => import('@/pages/Analytics'));
+const AIInsights   = lazy(() => import('@/pages/AIInsights'));
+const Settings     = lazy(() => import('@/pages/Settings'));
+const Notes        = lazy(() => import('@/pages/Notes'));
+const Flashcards   = lazy(() => import('@/pages/Flashcards'));
 
 function LoadingFallback() {
   return (
@@ -28,15 +30,17 @@ export default function App() {
       <Layout>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            <Route path="/"            element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard"   element={<Dashboard />} />
-            <Route path="/tasks"       element={<Tasks />} />
-            <Route path="/schedule"    element={<Schedule />} />
-            <Route path="/study"       element={<StudyTracker />} />
-            <Route path="/semester"    element={<Semester />} />
-            <Route path="/analytics"   element={<Analytics />} />
-            <Route path="/ai-insights" element={<AIInsights />} />
-            <Route path="/settings"    element={<Settings />} />
+            <Route path="/"             element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard"    element={<Dashboard />} />
+            <Route path="/tasks"        element={<Tasks />} />
+            <Route path="/schedule"     element={<Schedule />} />
+            <Route path="/study"        element={<StudyTracker />} />
+            <Route path="/semester"     element={<Semester />} />
+            <Route path="/analytics"    element={<Analytics />} />
+            <Route path="/ai-insights"  element={<AIInsights />} />
+            <Route path="/notes"        element={<Notes />} />
+            <Route path="/flashcards"   element={<Flashcards />} />
+            <Route path="/settings"     element={<Settings />} />
           </Routes>
         </Suspense>
       </Layout>
