@@ -14,6 +14,8 @@ const NAV_ITEMS = [
   { path: '/semester',    icon: '📅', label: 'Semester Planner' },
   { path: '/analytics',   icon: '📊', label: 'Analytics' },
   { path: '/ai-insights', icon: '🤖', label: 'AI Insights' },
+  { path: '/notes',       icon: '📝', label: 'Notes' },
+  { path: '/flashcards',  icon: '🃏', label: 'Flashcards' },
   { path: '/settings',    icon: '⚙',  label: 'Settings' },
 ];
 
