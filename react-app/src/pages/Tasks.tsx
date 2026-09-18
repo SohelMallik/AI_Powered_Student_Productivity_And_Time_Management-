@@ -11,10 +11,6 @@ dayjs.extend(relativeTime);
 
 function minutesToHM(h: number) { return `~${h}h`; }
 
-const PRIORITY_LABELS: Record<string, string> = {
-  critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low',
-};
-
 function getPriority(score: number) {
   if (score >= 80) return { label: 'Critical', bg: '#fee2e2', color: '#b91c1c' };
   if (score >= 60) return { label: 'High',     bg: '#fef9c3', color: '#854d0e' };
@@ -22,13 +18,19 @@ function getPriority(score: number) {
   return               { label: 'Low',      bg: '#dcfce7', color: '#15803d' };
 }
 
+type TaskType = 'assignment' | 'exam' | 'project' | 'reading' | 'other';
+const EMPTY_FORM: { title: string; description: string; deadline: string; course: string; type: TaskType; estimatedHours: number; weight: number } = {
+  title:'', description:'', deadline:'', course:'', type:'assignment', estimatedHours:2, weight:5,
+};
+
 export default function Tasks() {
   const [tasks,    setTasks]    = useState<Task[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [filter,   setFilter]   = useState<'all'|'pending'|'overdue'|'done'>('all');
   const [search,   setSearch]   = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [form,     setForm]     = useState({ title:'', description:'', deadline:'', course:'', type:'assignment', estimatedHours:2, weight:5 });
+  const [editing,  setEditing]  = useState<Task | null>(null);
+  const [form,     setForm]     = useState(EMPTY_FORM);
   const [saving,   setSaving]   = useState(false);
 
   const loadTasks = async () => {
@@ -58,25 +60,53 @@ export default function Tasks() {
     await loadTasks();
   };
 
+  const openCreate = () => {
+    setEditing(null);
+    setForm(EMPTY_FORM);
+    setShowForm(true);
+  };
+
+  const openEdit = (task: Task) => {
+    setEditing(task);
+    setForm({
+      title: task.title,
+      description: task.description,
+      deadline: task.deadline.slice(0, 16),   // trim to datetime-local format
+      course: task.course,
+      type: task.type,
+      estimatedHours: task.estimatedHours,
+      weight: task.weight,
+    });
+    setShowForm(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    try { await tasksApi.create(form); setShowForm(false); await loadTasks(); }
-    finally { setSaving(false); }
+    try {
+      if (editing) {
+        await tasksApi.update(editing.id, form);
+      } else {
+        await tasksApi.create(form);
+      }
+      setShowForm(false);
+      setEditing(null);
+      await loadTasks();
+    } finally { setSaving(false); }
   };
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800 }}>Task Manager</h1>
-        <button style={{ padding: '8px 16px', background: '#3b82d4', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700 }}
-          onClick={() => setShowForm(true)}>+ Add Task</button>
+        <button style={{ padding: '8px 16px', background: '#3b82d4', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}
+          onClick={openCreate}>+ Add Task</button>
       </div>
 
-      {/* Add Task Form */}
+      {/* Add/Edit Task Form */}
       {showForm && (
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20, marginBottom: 20 }}>
-          <h3 style={{ marginBottom: 16 }}>New Task</h3>
+          <h3 style={{ marginBottom: 16 }}>{editing ? '✏️ Edit Task' : 'New Task'}</h3>
           <form onSubmit={handleSubmit}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
@@ -97,7 +127,7 @@ export default function Tasks() {
               <div>
                 <label style={{ fontSize: 12, fontWeight: 700, display: 'block', marginBottom: 4 }}>Type</label>
                 <select style={inputStyle} value={form.type}
-                  onChange={e => setForm(p => ({ ...p, type: e.target.value }))}>
+                  onChange={e => setForm(p => ({ ...p, type: e.target.value as TaskType }))}>
                   {['assignment','exam','project','reading','other'].map(t => <option key={t}>{t}</option>)}
                 </select>
               </div>
@@ -118,11 +148,11 @@ export default function Tasks() {
                 onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Details..." />
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <button type="submit" disabled={saving} style={{ padding: '8px 16px', background: '#3b82d4', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700 }}>
-                {saving ? 'Saving...' : 'Add Task'}
+              <button type="submit" disabled={saving} style={{ padding: '8px 16px', background: '#3b82d4', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>
+                {saving ? 'Saving...' : editing ? 'Update Task' : 'Add Task'}
               </button>
-              <button type="button" onClick={() => setShowForm(false)}
-                style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, fontWeight: 700 }}>Cancel</button>
+              <button type="button" onClick={() => { setShowForm(false); setEditing(null); }}
+                style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
             </div>
           </form>
         </div>
@@ -156,9 +186,11 @@ export default function Tasks() {
                   </div>
                   <div style={{ display: 'flex', gap: 4 }}>
                     {!task.completed && <button onClick={() => handleComplete(task.id)}
-                      style={{ padding: '4px 10px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12 }}>✓</button>}
+                      style={{ padding: '4px 10px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>✓</button>}
+                    {!task.completed && <button onClick={() => openEdit(task)}
+                      style={{ padding: '4px 10px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>✏️</button>}
                     <button onClick={() => handleDelete(task.id)}
-                      style={{ padding: '4px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12 }}>🗑</button>
+                      style={{ padding: '4px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>🗑</button>
                   </div>
                 </div>
                 <div style={{ fontWeight: 700, fontSize: 14, textDecoration: task.completed ? 'line-through' : 'none', marginBottom: 4 }}>{task.title}</div>
