@@ -1,7 +1,7 @@
 // ============================================================
 // Dashboard Page  ★ Full Animation + Vivid Colours
 // ============================================================
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { analyticsApi, aiApi, studyApi, tasksApi } from '@/services/api';
 import type { AnalyticsOverview, ProcrastinationItem, Task, TimeSuggestion, UserProfile } from '@/types';
 import styles from './Dashboard.module.css';
@@ -21,13 +21,6 @@ function priorityGradient(score: number): string {
   if (score >= 60) return 'linear-gradient(135deg,#f59e0b,#fbbf24)';
   if (score >= 40) return 'linear-gradient(135deg,#6366f1,#8b5cf6)';
   return 'linear-gradient(135deg,#10b981,#34d399)';
-}
-
-function priorityColor(score: number): string {
-  if (score >= 80) return '#ef4444';
-  if (score >= 60) return '#f59e0b';
-  if (score >= 40) return '#6366f1';
-  return '#10b981';
 }
 
 export default function Dashboard() {
