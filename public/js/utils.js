@@ -96,6 +96,20 @@ function scoreColor(score) {
   return 'var(--color-danger)';
 }
 
+// ── Dark Mode ─────────────────────────────────────────────
+function isDarkMode() {
+  try { return JSON.parse(localStorage.getItem('studyai-dark') || 'false'); }
+  catch { return false; }
+}
+
+function setDarkMode(on) {
+  localStorage.setItem('studyai-dark', JSON.stringify(!!on));
+  document.documentElement.setAttribute('data-theme', on ? 'dark' : 'light');
+}
+
+// Apply dark mode on script load (before first render)
+setDarkMode(isDarkMode());
+
 // ── Local storage cache ───────────────────────────────────
 const Cache = {
   set(key, val, ttlMs = 60_000) {
