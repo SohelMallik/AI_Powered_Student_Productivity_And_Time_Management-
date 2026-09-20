@@ -101,6 +101,25 @@ function buildSettingsUI(profile) {
       </div>
     </div>
 
+    <!-- Dark Mode Section -->
+    <div class="vivid-settings-section" style="animation:slideUp .4s .12s ease both" id="appearanceSection">
+      <div class="vss-header">
+        <span class="section-pill schedule">🎨 Appearance</span>
+      </div>
+      <div class="vss-body">
+        <div class="vss-row">
+          <div>
+            <div class="vss-label">Dark Mode</div>
+            <div class="vss-desc">Switch to a dark theme — easier on the eyes at night</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="darkModeToggle" ${isDarkMode()?'checked':''} />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <!-- AI Settings Section -->
     <div class="vivid-settings-section" style="animation:slideUp .4s .16s ease both">
       <div class="vss-header">
@@ -152,7 +171,7 @@ function buildSettingsUI(profile) {
         <span class="section-pill schedule">ℹ️ App Info</span>
       </div>
       <div class="vss-body">
-        ${[['Version','1.0.0'],['AI Engine','IBM Bob AI Engine v1'],['Backend','Node.js + Express']]
+        ${[['Version','2.0.0'],['AI Engine','IBM Bob AI Engine v2'],['Backend','Node.js + Express'],['New Features','Notes, Flashcards, Dark Mode, Task Edit']]
           .map(([k,v]) => `<div class="vss-row">
             <span class="vss-label">${k}</span>
             <span class="vss-value">${v}</span>
@@ -160,6 +179,12 @@ function buildSettingsUI(profile) {
       </div>
     </div>
   `;
+
+  // Dark mode toggle
+  document.getElementById('darkModeToggle').onchange = function() {
+    setDarkMode(this.checked);
+    showToast(this.checked ? '🌙 Dark mode enabled' : '☀️ Light mode enabled', 'info', 1800);
+  };
 
   document.getElementById('profileForm').onsubmit = async (e) => {
     e.preventDefault();
