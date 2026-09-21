@@ -123,6 +123,8 @@ const PAGE_RENDERERS = {
   'semester'   : renderSemesterPage,
   'analytics'  : renderAnalyticsPage,
   'ai-insights': renderAIInsightsPage,
+  'notes'      : renderNotesPage,
+  'flashcards' : renderFlashcardsPage,
   'settings'   : renderSettingsPage,
 };
 
@@ -134,6 +136,8 @@ const PAGE_TITLES = {
   'semester'   : 'Semester Planner',
   'analytics'  : 'Analytics',
   'ai-insights': 'AI Insights',
+  'notes'      : 'Study Notes',
+  'flashcards' : 'Flashcards',
   'settings'   : 'Settings',
 };
 
