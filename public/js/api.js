@@ -113,6 +113,32 @@ const AuthAPI = {
   me       : ()     => apiFetch('/auth/me'),
 };
 
+// ── Notes ─────────────────────────────────────────────────
+const NotesAPI = {
+  getAll  : (params = {}) => {
+    const qs = new URLSearchParams(Object.entries(params).filter(([,v]) => v !== undefined && v !== '')).toString();
+    return apiFetch(`/notes${qs ? '?' + qs : ''}`);
+  },
+  getById : (id)       => apiFetch(`/notes/${id}`),
+  create  : (body)     => apiFetch('/notes',           { method: 'POST',  body: JSON.stringify(body) }),
+  update  : (id, body) => apiFetch(`/notes/${id}`,     { method: 'PUT',   body: JSON.stringify(body) }),
+  pin     : (id)       => apiFetch(`/notes/${id}/pin`, { method: 'PATCH' }),
+  delete  : (id)       => apiFetch(`/notes/${id}`,     { method: 'DELETE' }),
+};
+
+// ── Flashcards ────────────────────────────────────────────
+const FlashcardsAPI = {
+  getAll      : ()            => apiFetch('/flashcards'),
+  getDeck     : (id)          => apiFetch(`/flashcards/${id}`),
+  createDeck  : (body)        => apiFetch('/flashcards',                        { method: 'POST',  body: JSON.stringify(body) }),
+  deleteDeck  : (id)          => apiFetch(`/flashcards/${id}`,                  { method: 'DELETE' }),
+  addCard     : (deckId, body)=> apiFetch(`/flashcards/${deckId}/cards`,         { method: 'POST',  body: JSON.stringify(body) }),
+  reviewCard  : (deckId, cardId, body) =>
+                  apiFetch(`/flashcards/${deckId}/cards/${cardId}/review`,       { method: 'PATCH', body: JSON.stringify(body) }),
+  deleteCard  : (deckId, cardId) =>
+                  apiFetch(`/flashcards/${deckId}/cards/${cardId}`,              { method: 'DELETE' }),
+};
+
 // ── Health ────────────────────────────────────────────────
 const HealthAPI = {
   check: () => fetch(`${API_BASE}/health`, { credentials: 'include' }).then(r => r.json()),
