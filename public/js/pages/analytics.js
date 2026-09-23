@@ -39,11 +39,12 @@ function buildAnalyticsUI(overview, weekly, trend) {
     </div>
 
     <!-- KPI Cards -->
-    <div class="grid-4 mb-4">
+    <div class="grid-5 mb-4">
       ${analyticsKpiCard('📚','Total Tasks', overview.totalTasks||0,'All time','#6366f1','#4338ca','0')}
       ${analyticsKpiCard('✅','Completed', overview.completedTasks||0,`${completionRate}% rate`,'#22c55e','#15803d','.07s')}
       ${analyticsKpiCard('⏱','Total Study', minutesToHM(overview.totalStudyMinutes||0),'All sessions','#f59e0b','#d97706','.14s')}
       ${analyticsKpiCard('📊','Daily Avg', minutesToHM(overview.avgDailyMinutes||0),'Last 7 days','#ec4899','#be185d','.21s')}
+      ${analyticsKpiCard('🔥','Study Streak', `${overview.streakDays||0} days`, 'Consecutive study days','#0ea5e9','#0369a1','.28s')}
     </div>
 
     <!-- Charts Row -->
