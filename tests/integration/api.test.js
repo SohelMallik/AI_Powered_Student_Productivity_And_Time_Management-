@@ -101,6 +101,17 @@ describe('Tasks API', () => {
   });
 });
 
+// ── Analytics ───────────────────────────────────────────────
+describe('Analytics API', () => {
+  test('GET /api/analytics/overview – includes study streak', async () => {
+    const res = await request(app).get('/api/analytics/overview');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(typeof res.body.data.streakDays).toBe('number');
+    expect(res.body.data.streakDays).toBeGreaterThanOrEqual(0);
+  });
+});
+
 // ── Study Sessions ────────────────────────────────────────────
 describe('Study Sessions API', () => {
   let sessionId;
