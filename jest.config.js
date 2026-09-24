@@ -11,6 +11,6 @@ module.exports = {
   },
   setupFilesAfterFramework: [],   // NOTE: kept for future use
   testTimeout        : 15000,
-  forceExit          : true,      // ensure process exits after test suite
+  forceExit          : true,      // ensure process exits after test suite for CI/CD pipelines
   clearMocks         : true,
 };
