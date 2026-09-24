@@ -8,6 +8,7 @@ const path = require('path');
 const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(__dirname, '..', '..', 'data'));
 
 const FILES = {
+  users        : path.join(DATA_DIR, 'users.json'),
   tasks        : path.join(DATA_DIR, 'tasks.json'),
   schedule     : path.join(DATA_DIR, 'schedule.json'),
   studySessions: path.join(DATA_DIR, 'studySessions.json'),
@@ -21,6 +22,7 @@ const FILES = {
 
 // ── Default empty structures ─────────────────────────────────
 const DEFAULTS = {
+  users        : [],
   tasks        : [],
   schedule     : [],
   studySessions: [],
