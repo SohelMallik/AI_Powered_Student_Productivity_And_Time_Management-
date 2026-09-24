@@ -11,6 +11,7 @@ const path       = require('path');
 const fs         = require('fs-extra');
 const cron       = require('node-cron');
 
+const authRouter         = require('./routes/auth');
 const tasksRouter        = require('./routes/tasks');
 const scheduleRouter     = require('./routes/schedule');
 const studySessionRouter = require('./routes/studySessions');
@@ -50,6 +51,7 @@ app.use(express.static(PUBLIC_DIR, {
 }));
 
 // ── API Routes ────────────────────────────────────────────────
+app.use('/api/auth',           authRouter);
 app.use('/api/tasks',          tasksRouter);
 app.use('/api/schedule',       scheduleRouter);
 app.use('/api/study-sessions', studySessionRouter);
