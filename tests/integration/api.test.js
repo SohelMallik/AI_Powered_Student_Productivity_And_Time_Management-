@@ -32,6 +32,109 @@ describe('GET /api/health', () => {
   });
 });
 
+// ── Auth ─────────────────────────────────────────────────────
+describe('Auth API', () => {
+  test('POST /api/auth/register – creates a user session', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({ username: 'flashcard-user', email: 'user@example.com', password: 'Password123!' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.username).toBe('flashcard-user');
+    expect(res.headers['set-cookie']).toBeTruthy();
+  });
+
+  test('GET /api/auth/me – returns the authenticated user', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/auth/login').send({ username: 'flashcard-user', password: 'Password123!' });
+    const res = await agent.get('/api/auth/me');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.username).toBe('flashcard-user');
+  });
+
+  test('POST /api/auth/logout – clears the session', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/auth/login').send({ username: 'flashcard-user', password: 'Password123!' });
+    const res = await agent.post('/api/auth/logout');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
+
+// ── Notes ─────────────────────────────────────────────────────
+describe('Notes API', () => {
+  let noteId;
+
+  test('POST /api/notes – creates a note', async () => {
+    const res = await request(app)
+      .post('/api/notes')
+      .send({ title: 'Important Chapter', content: 'Use active recall', course: 'Biology', tags: ['exam'], color: '#fef9c3' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.title).toBe('Important Chapter');
+    noteId = res.body.data.id;
+  });
+
+  test('GET /api/notes – returns notes and supports search filtering', async () => {
+    const res = await request(app).get('/api/notes?search=important');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.some(note => note.id === noteId)).toBe(true);
+  });
+
+  test('PATCH /api/notes/:id/pin – toggles pin status', async () => {
+    const res = await request(app).patch(`/api/notes/${noteId}/pin`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.pinned).toBe(true);
+  });
+});
+
+// ── Flashcards ─────────────────────────────────────────────────
+describe('Flashcards API', () => {
+  let deckId;
+  let cardId;
+
+  test('POST /api/flashcards – creates a deck', async () => {
+    const res = await request(app)
+      .post('/api/flashcards')
+      .send({ name: 'Biology Deck', course: 'Biology', description: 'Cell structure review' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.name).toBe('Biology Deck');
+    deckId = res.body.data.id;
+  });
+
+  test('POST /api/flashcards/:deckId/cards – adds a card', async () => {
+    const res = await request(app)
+      .post(`/api/flashcards/${deckId}/cards`)
+      .send({ front: 'What is a nucleus?', back: 'It stores DNA.', hint: 'Cell biology' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.front).toBe('What is a nucleus?');
+    cardId = res.body.data.id;
+  });
+
+  test('PATCH /api/flashcards/:deckId/cards/:cardId/review – records review progress', async () => {
+    const res = await request(app)
+      .patch(`/api/flashcards/${deckId}/cards/${cardId}/review`)
+      .send({ correct: true, difficulty: 'easy' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.timesShown).toBe(1);
+    expect(res.body.data.timesCorrect).toBe(1);
+  });
+});
+
 // ── Tasks ─────────────────────────────────────────────────────
 describe('Tasks API', () => {
   let taskId;
