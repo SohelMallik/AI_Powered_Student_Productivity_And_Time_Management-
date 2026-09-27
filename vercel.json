@@ -1,32 +1,11 @@
-{
-  "version": 2,
+﻿{
   "builds": [
     {
       "src": "studyai/wsgi.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "50mb",
-        "runtime": "python3.12"
-      }
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
+      "use": "@vercel/python"
     }
   ],
   "routes": [
-    {
-      "src": "/static/(.*)",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/css/(.*)",
-      "dest": "/public/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/public/js/$1"
-    },
     {
       "src": "/api/(.*)",
       "dest": "studyai/wsgi.py"
@@ -34,6 +13,9 @@
     {
       "src": "/admin/(.*)",
       "dest": "studyai/wsgi.py"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
