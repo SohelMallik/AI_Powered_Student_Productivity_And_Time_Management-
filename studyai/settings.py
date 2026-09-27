@@ -66,37 +66,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'studyai.wsgi.application'
 
-# ── Database – SQLite (zero config) ──────────────────────────
-DATABASE_URL = next(
-    (
-        os.getenv(name, '').strip()
-        for name in (
-            'DATABASE_URL',
-            'POSTGRES_URL',
-            'POSTGRES_PRISMA_URL',
-            'POSTGRES_URL_NON_POOLING',
-        )
-        if os.getenv(name, '').strip()
-    ),
-    '',
-)
-if DATABASE_URL:
-    import dj_database_url
+# ── Database – MySQL    (zero config) ──────────────────────────
 
-    DATABASES = {
-        'default': dj_database_url.parse(
-            DATABASE_URL,
-            conn_max_age=0,
-            ssl_require=True,
-        )
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "studdyplan_db",
+        "USER": "root",
+        "PASSWORD": "django123",
+        "HOST": "localhost",
+        "PORT": "3306",
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'data' / 'db.sqlite3',
-        }
-    }
+}
+
+
+
 
 # ── Static + Media ────────────────────────────────────────────
 STATIC_URL   = '/static/'
