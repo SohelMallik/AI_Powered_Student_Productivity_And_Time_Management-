@@ -66,18 +66,42 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'studyai.wsgi.application'
 
-# ── Database – MySQL    (zero config) ──────────────────────────
+# ── Database ─────────────────────────────────────────────────
+DATABASE_URL = next(
+    (
+        os.getenv(name, '').strip()
+        for name in (
+            'DATABASE_URL',
+            'POSTGRES_URL',
+            'POSTGRES_PRISMA_URL',
+            'POSTGRES_URL_NON_POOLING',
+        )
+        if os.getenv(name, '').strip()
+    ),
+    '',
+)
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "studdyplan_db",
-        "USER": "root",
-        "PASSWORD": "django123",
-        "HOST": "localhost",
-        "PORT": "3306",
+if DATABASE_URL:
+    import dj_database_url
+
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=0,
+            ssl_require=DATABASE_URL.startswith(('postgres://', 'postgresql://')),
+        )
     }
-}
+elif os.getenv('VERCEL'):
+    raise RuntimeError(
+        'DATABASE_URL is required on Vercel. Connect a PostgreSQL database in Vercel Storage.'
+    )
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'data' / 'db.sqlite3',
+        }
+    }
 
 
 
