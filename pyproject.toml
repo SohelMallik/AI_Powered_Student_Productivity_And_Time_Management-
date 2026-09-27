@@ -1,2 +1,17 @@
+[project]
+name = "ai-student-productivity"
+version = "1.0.0"
+description = "AI-powered student productivity and time management app"
+requires-python = ">=3.10"
+dependencies = [
+  "Django==4.2.7",
+  "djangorestframework==3.14.0",
+  "django-cors-headers==4.3.0",
+  "django-apscheduler==0.6.2",
+  "python-dotenv==1.0.0",
+  "dj-database-url>=2.2,<3",
+  "psycopg[binary]>=3.2,<4",
+]
+
 [tool.vercel.scripts]
 build = "python manage.py migrate --noinput --fake-initial"
