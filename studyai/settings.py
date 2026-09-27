@@ -67,7 +67,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'studyai.wsgi.application'
 
 # ── Database – SQLite (zero config) ──────────────────────────
-DATABASE_URL = os.getenv('DATABASE_URL', '').strip()
+DATABASE_URL = next(
+    (
+        os.getenv(name, '').strip()
+        for name in (
+            'DATABASE_URL',
+            'POSTGRES_URL',
+            'POSTGRES_PRISMA_URL',
+            'POSTGRES_URL_NON_POOLING',
+        )
+        if os.getenv(name, '').strip()
+    ),
+    '',
+)
 if DATABASE_URL:
     import dj_database_url
 
@@ -78,10 +90,6 @@ if DATABASE_URL:
             ssl_require=True,
         )
     }
-elif os.getenv('VERCEL'):
-    raise RuntimeError(
-        'DATABASE_URL is required on Vercel. Connect a PostgreSQL database in the Vercel project Storage settings.'
-    )
 else:
     DATABASES = {
         'default': {
