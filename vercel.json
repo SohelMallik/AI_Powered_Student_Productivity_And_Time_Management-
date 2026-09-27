@@ -1,25 +1,4 @@
-﻿{
-  "builds": [
-    {
-      "src": "studyai/wsgi.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "studyai/wsgi.py"
-    },
-    {
-      "src": "/admin/(.*)",
-      "dest": "studyai/wsgi.py"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/public/index.html"
-    }
-  ]
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "django"
 }
