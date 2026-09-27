@@ -1,0 +1,2 @@
+[tool.vercel.scripts]
+build = "python manage.py migrate --noinput --fake-initial"

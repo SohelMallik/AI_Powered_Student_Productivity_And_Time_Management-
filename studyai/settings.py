@@ -9,9 +9,13 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-ai-student-productivity-secret-key-change-in-production')
+SECRET_KEY = (
+    os.getenv('SECRET_KEY')
+    or os.getenv('DJANGO_SECRET_KEY')
+    or 'django-insecure-ai-student-productivity-secret-key-change-in-production'
+)
 
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = os.getenv('DEBUG', 'False' if os.getenv('VERCEL') else 'True').lower() in {'true', '1', 'yes'}
 
 ALLOWED_HOSTS = ['*']
 
@@ -63,12 +67,28 @@ TEMPLATES = [
 WSGI_APPLICATION = 'studyai.wsgi.application'
 
 # ── Database – SQLite (zero config) ──────────────────────────
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'data' / 'db.sqlite3',
+DATABASE_URL = os.getenv('DATABASE_URL', '').strip()
+if DATABASE_URL:
+    import dj_database_url
+
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=0,
+            ssl_require=True,
+        )
     }
-}
+elif os.getenv('VERCEL'):
+    raise RuntimeError(
+        'DATABASE_URL is required on Vercel. Connect a PostgreSQL database in the Vercel project Storage settings.'
+    )
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'data' / 'db.sqlite3',
+        }
+    }
 
 # ── Static + Media ────────────────────────────────────────────
 STATIC_URL   = '/static/'
@@ -96,8 +116,10 @@ CORS_ALLOW_CREDENTIALS = True
 SESSION_ENGINE            = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_SAMESITE   = 'Lax'
 SESSION_COOKIE_HTTPONLY   = True   # session cookie is httponly (fine – JS doesn't need it)
+SESSION_COOKIE_SECURE     = not DEBUG
 CSRF_COOKIE_HTTPONLY      = False  # CSRF cookie MUST be readable by JS (getCookie)
 CSRF_COOKIE_SAMESITE      = 'Lax'
+CSRF_COOKIE_SECURE        = not DEBUG
 
 # ── Scheduler ────────────────────────────────────────────────
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
