@@ -712,6 +712,12 @@ https://studyai-productivity.onrender.com
 
 > **Note:** Free tier spins down after 15 minutes of inactivity. The first request after idle takes ~30 seconds to wake up.
 
+### Deploying the Django app on Vercel
+
+The Django deployment runs migrations during the Vercel build. Before deploying, connect a PostgreSQL database through Vercel Storage or Neon and add its connection string to the project environment as `DATABASE_URL`. Vercel integrations may instead provide `POSTGRES_URL`, `POSTGRES_PRISMA_URL`, or `POSTGRES_URL_NON_POOLING`; the app accepts all four names.
+
+SQLite is suitable for local development only. Vercel's serverless filesystem is not writable or durable, so registration and dashboard updates require PostgreSQL.
+
 ---
 
 ## 🧪 Testing
