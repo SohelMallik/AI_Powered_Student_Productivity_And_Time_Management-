@@ -1,25 +1,43 @@
 // ============================================================
 // Study Tracker Page – log sessions, view history
 // ============================================================
+//
+// This page lets the user log individual study sessions (subject,
+// duration, mood, notes...) and review everything they have logged.
+// Summary cards at the top show today's study time and session count
+// plus all-time totals, and the list below shows each past session
+// with a focus percentage, productivity score, and mood icon.
+//
 import React, { useEffect, useState } from 'react';
 import { studyApi, tasksApi } from '@/services/api';
 import type { StudySession, Task } from '@/types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
+// Teach dayjs to format dates relative to "now", e.g. "2 hours ago",
+// which is how each session's date is shown in the list.
 dayjs.extend(relativeTime);
 
+/**
+ * Converts a number of minutes into a short readable string:
+ * 90 -> "1h 30m", 45 -> "45m". Used for the duration labels.
+ */
 function minutesToHM(min: number) {
   const h = Math.floor(min / 60);
   const m = min % 60;
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
+/** Shared style so every form input on this page looks the same. */
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0',
   borderRadius: 8, fontSize: 14, fontFamily: 'inherit', background: '#fff', boxSizing: 'border-box',
 };
 
+/**
+ * The four moods a session can be logged with, each shown as a button
+ * with an emoji in the log form.
+ */
 const MOOD_OPTIONS: { value: StudySession['mood']; label: string; emoji: string }[] = [
   { value: 'happy',   label: 'Happy',   emoji: '😊' },
   { value: 'neutral', label: 'Neutral', emoji: '😐' },
@@ -27,41 +45,81 @@ const MOOD_OPTIONS: { value: StudySession['mood']; label: string; emoji: string 
   { value: 'stressed',label: 'Stressed',emoji: '😰' },
 ];
 
+/**
+ * Starting values for the "log session" form: 60 minutes, no linked
+ * task, neutral mood, productivity 7/10, and today's date/time. The
+ * date is pre-formatted as YYYY-MM-DDTHH:mm, which is exactly what the
+ * datetime-local input expects.
+ */
 const EMPTY_FORM = { subject: '', taskId: '', duration: 60, distractionMinutes: 0, notes: '', mood: 'neutral' as StudySession['mood'], productivity: 7, date: dayjs().format('YYYY-MM-DDTHH:mm') };
 
+/**
+ * Study Tracker page component.
+ * Lets the user log study sessions through a form, shows summary cards
+ * for today and all time, and lists every past session newest-first
+ * with a focus percentage, mood icon, and optional linked task.
+ */
 export default function StudyTracker() {
+  // Every logged study session, sorted newest-first after loading.
   const [sessions,   setSessions]   = useState<StudySession[]>([]);
+  // The user's tasks, filtered to only the incomplete ones so they can
+  // be linked to new sessions in the form's dropdown.
   const [tasks,      setTasks]      = useState<Task[]>([]);
+  // True while data is being fetched, to show a loading spinner.
   const [loading,    setLoading]    = useState(true);
+  // Controls whether the "log session" form is visible.
   const [showForm,   setShowForm]   = useState(false);
+  // The current values typed into the log form.
   const [form,       setForm]       = useState(EMPTY_FORM);
+  // True while a save request is running, to disable the submit button.
   const [saving,     setSaving]     = useState(false);
+  // Minutes studied and number of sessions logged today, for the
+  // summary cards at the top.
   const [todayStats, setTodayStats] = useState({ minutes: 0, sessions: 0 });
 
+  /**
+   * Loads everything the page needs in one go: all past sessions,
+   * today's totals, and the task list. Fills the summary cards, sorts
+   * the sessions newest-first, and keeps only unfinished tasks.
+   */
   const loadSessions = async () => {
     setLoading(true);
     try {
+      // Fetch sessions, today's summary, and tasks at the same time
+      // (in parallel) instead of one after another — faster overall.
       const [sesRes, todayRes, taskRes] = await Promise.all([
         studyApi.getAll(),
         studyApi.getToday(),
         tasksApi.getAll(),
       ]);
       const all = sesRes.data.data || [];
+      // Sort the sessions newest first by comparing their dates.
       setSessions(all.sort((a: StudySession, b: StudySession) => new Date(b.date).getTime() - new Date(a.date).getTime()));
       const td = (todayRes.data as any);
+      // The API wraps today's data in an extra object; take the total
+      // minutes from it and count the sessions in its list.
       setTodayStats({ minutes: td.totalMinutes || 0, sessions: (td.data || []).length });
+      // Only unfinished tasks can be linked to new sessions.
       setTasks((taskRes.data.data || []).filter((t: Task) => !t.completed));
     } finally {
       setLoading(false);
     }
   };
 
+  // Load all the data once when the page first opens.
   useEffect(() => { loadSessions(); }, []);
 
+  /**
+   * Handles submitting the "log session" form: saves the new session
+   * to the API, closes and resets the form, then reloads everything so
+   * the new session and today's totals appear.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
+      // An empty taskId ("") is sent as null so the backend treats it
+      // as "no linked task" instead of an invalid id.
       await studyApi.create({ ...form, taskId: form.taskId || null });
       setShowForm(false);
       setForm(EMPTY_FORM);
@@ -69,12 +127,18 @@ export default function StudyTracker() {
     } finally { setSaving(false); }
   };
 
+  /**
+   * Asks the user to confirm first, then deletes the session on the
+   * API and reloads the list. Does nothing if the user cancels.
+   */
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this session?')) return;
     await studyApi.delete(id);
     await loadSessions();
   };
 
+  // Lookup tables that map a session's mood to an emoji icon and to
+  // badge colors; unknown moods fall back to neutral styling below.
   const moodEmoji: Record<string, string> = { happy: '😊', neutral: '😐', tired: '😴', stressed: '😰' };
   const moodColors: Record<string, { bg: string; color: string }> = {
     happy:   { bg: '#dcfce7', color: '#15803d' },
@@ -94,7 +158,7 @@ export default function StudyTracker() {
         </button>
       </div>
 
-      {/* Today summary */}
+      {/* Summary cards; "Total Logged" adds up every session's duration */}
       <div style={{ display: 'flex', gap: 14, marginBottom: 22, flexWrap: 'wrap' }}>
         {[
           { label: "Today's Study",    value: minutesToHM(todayStats.minutes),   icon: '⏱', bg: '#e0e7ff', color: '#4338ca' },
@@ -193,7 +257,13 @@ export default function StudyTracker() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {sessions.map(s => {
             const mood = moodColors[s.mood] || moodColors.neutral;
+            // Focus % = the share of the session spent actually studying:
+            // duration minus distraction minutes, as a percentage of the
+            // whole session. If duration is 0, show 100% to avoid
+            // dividing by zero.
             const focusPct = s.duration > 0 ? Math.round(((s.duration - (s.distractionMinutes || 0)) / s.duration) * 100) : 100;
+            // If this session was linked to a task, look that task up so
+            // its title can be shown as a badge.
             const linkedTask = tasks.find(t => t.id === s.taskId);
             return (
               <div key={s.id} style={{ background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 14, padding: 18, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
