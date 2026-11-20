@@ -1,6 +1,15 @@
 // ============================================================
 // Tests: AI Engine – Unit Tests
 // ============================================================
+/**
+ * aiEngine.test.js — unit tests for the AI engine service.
+ *
+ * Each `describe` block below tests one exported function from
+ * `server/services/aiEngine.js`. The tests feed in small, hand-made
+ * inputs (fake tasks, sessions, profiles) and check that the AI
+ * scoring/detection logic returns the expected numbers and shapes.
+ * No server or data files are touched — these are pure logic tests.
+ */
 const {
   calculatePriority,
   detectOverdueTasks,
@@ -11,8 +20,12 @@ const {
 } = require('../../server/services/aiEngine');
 
 // ── calculatePriority ─────────────────────────────────────────
+// Tests the function that scores how urgent a task is (0–100)
+// based on its deadline, weight, and estimated effort.
 describe('calculatePriority', () => {
   test('returns 100 for severely overdue high-weight task', () => {
+    // A task due 7 days ago with maximum weight (10) should score
+    // very high — 80 is the threshold the UI treats as "critical".
     const task = {
       deadline       : new Date(Date.now() - 7 * 24 * 3600_000).toISOString(),
       weight         : 10,
@@ -23,6 +36,8 @@ describe('calculatePriority', () => {
   });
 
   test('returns lower score for distant deadline', () => {
+    // A low-weight task due 30 days out shouldn't be prioritized
+    // over more urgent work, so its score stays below 60.
     const task = {
       deadline       : new Date(Date.now() + 30 * 24 * 3600_000).toISOString(),
       weight         : 3,
@@ -33,6 +48,8 @@ describe('calculatePriority', () => {
   });
 
   test('returns a number between 0 and 100', () => {
+    // Sanity check: even with typical inputs the score must stay
+    // within the 0–100 range so the UI can display it as a percent.
     const task = {
       deadline       : new Date(Date.now() + 24 * 3600_000).toISOString(),
       weight         : 5,
@@ -45,7 +62,10 @@ describe('calculatePriority', () => {
 });
 
 // ── detectOverdueTasks ────────────────────────────────────────
+// Tests the function that finds tasks past their deadline.
+// Sample set: one overdue, one not-yet-due, one overdue but completed.
 describe('detectOverdueTasks', () => {
+  // Shared fixture used by both tests in this block.
   const tasks = [
     { id: '1', title: 'Past',   deadline: new Date(Date.now() - 3600_000).toISOString(), completed: false },
     { id: '2', title: 'Future', deadline: new Date(Date.now() + 3600_000).toISOString(), completed: false },
@@ -53,12 +73,14 @@ describe('detectOverdueTasks', () => {
   ];
 
   test('returns only incomplete overdue tasks', () => {
+    // Only the "Past" task (id 1) is both overdue and incomplete.
     const overdue = detectOverdueTasks(tasks);
     expect(overdue).toHaveLength(1);
     expect(overdue[0].id).toBe('1');
   });
 
   test('excludes completed tasks even if deadline passed', () => {
+    // Task 3 is overdue but already done, so it must not be flagged.
     const overdue = detectOverdueTasks(tasks);
     const ids = overdue.map(t => t.id);
     expect(ids).not.toContain('3');
@@ -66,8 +88,12 @@ describe('detectOverdueTasks', () => {
 });
 
 // ── detectProcrastination ─────────────────────────────────────
+// Tests the function that flags tasks the student is likely putting
+// off: urgent (due within 48h) with little or no study time logged.
 describe('detectProcrastination', () => {
   test('flags task with deadline < 48h and no study sessions', () => {
+    // Lower the threshold to 0 so any task without logged study
+    // minutes counts as procrastination in this test.
     process.env.PROCRASTINATION_THRESHOLD_MINUTES = '0';
     const tasks = [{
       id            : 'task-1',
@@ -84,6 +110,7 @@ describe('detectProcrastination', () => {
   });
 
   test('does not flag tasks due more than 48h away', () => {
+    // A task due in 5 days isn't urgent yet, so no warning is expected.
     const tasks = [{
       id            : 'task-2',
       title         : 'Future Task',
@@ -97,6 +124,7 @@ describe('detectProcrastination', () => {
   });
 
   test('does not flag completed tasks', () => {
+    // Even with a near deadline, a finished task can't be procrastinated on.
     const tasks = [{
       id            : 'task-3',
       title         : 'Done Task',
