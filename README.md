@@ -32,6 +32,8 @@
 
 ---
 
+> **Developer navigation:** See [`PROJECT_MAP.md`](PROJECT_MAP.md) before editing a feature. It maps each feature to the smallest relevant file set.
+
 ## 📸 Screenshots
 
 | Dashboard | Task Manager | AI Insights |
