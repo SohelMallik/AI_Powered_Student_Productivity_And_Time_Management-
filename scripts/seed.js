@@ -4,27 +4,52 @@
 //  Run:  node scripts/seed.js
 //       (also called automatically by run.bat / run.sh)
 // ============================================================
+/**
+ * seed.js — creates the demo data files the app needs to run.
+ *
+ * This script builds realistic sample data (tasks, study sessions,
+ * a weekly schedule, semester info, analytics, and a user profile)
+ * and writes each piece of data to its own JSON file inside the
+ * `data` directory. The server then reads those files, so the app
+ * already has content the first time you open it.
+ *
+ * Run manually with:  node scripts/seed.js
+ */
+require('dotenv').config();
 require('dotenv').config();
 const path = require('path');
 const fs   = require('fs-extra');
 
+// Reads the DATA_DIR environment variable if set; otherwise falls back to
+// the `data` folder next to this script's parent directory.
 const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(__dirname, '..', 'data'));
 
 // ── Helpers ───────────────────────────────────────────────
+/**
+ * Generates a random UUID (version 4 style) string.
+ * Used to give every seeded record a unique `id`.
+ */
 function uuid() {
+  // Replace each 'x' with a random hex digit; the 'y' placeholder holds a
+  // fixed set of bits that marks this as a version-4 UUID.
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
     const r = Math.random() * 16 | 0;
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
 }
+/** Returns an ISO timestamp string `d` days in the future. */
 function daysFromNow(d) {
   return new Date(Date.now() + d * 86400_000).toISOString();
 }
+/** Returns an ISO timestamp string `d` days in the past. */
 function daysAgo(d) {
   return new Date(Date.now() - d * 86400_000).toISOString();
 }
 
 // ── Tasks ─────────────────────────────────────────────────
+// A list of sample assignments/projects/exams. Mixes future deadlines,
+// high/low weights, and one already-completed (overdue) task so the app
+// can show varied states in the UI.
 const tasks = [
   {
     id: uuid(), title: 'Linear Algebra — Chapter 7 Review',
@@ -77,6 +102,9 @@ const tasks = [
 ];
 
 // ── Study Sessions ────────────────────────────────────────
+// Sample study log entries for the last few days. Each records how long
+// the student studied, how many minutes were lost to distractions, their
+// mood, and a productivity rating — these feed the analytics screens.
 const studySessions = [
   {
     id: uuid(), subject: 'Mathematics', taskId: null,
@@ -131,6 +159,9 @@ const studySessions = [
 ];
 
 // ── Schedule ──────────────────────────────────────────────
+// A weekly timetable of recurring blocks: lectures, study sessions,
+// and personal time. Each entry gets a color so the calendar view
+// can color-code different activities.
 const schedule = [
   {
     id: uuid(), title: 'Mathematics Lecture', day: 'monday',
@@ -170,7 +201,11 @@ const schedule = [
 ];
 
 // ── Semester ──────────────────────────────────────────────
+// Everything related to the current semester: enrolled courses,
+// important dates (exams, submission deadlines, holidays), and the
+// student's goals with their progress so far.
 const semester = {
+  // Courses enrolled this semester (name, code, instructor, credits, color).
   courses: [
     { id: uuid(), name: 'Mathematics',      code: 'MATH-301', instructor: 'Prof. Williams', credits: 4, color: '#3b82d4', createdAt: daysAgo(60) },
     { id: uuid(), name: 'Physics',          code: 'PHYS-201', instructor: 'Dr. Thompson',   credits: 4, color: '#7c5cd8', createdAt: daysAgo(60) },
@@ -178,6 +213,8 @@ const semester = {
     { id: uuid(), name: 'Chemistry',        code: 'CHEM-201', instructor: 'Dr. Patel',       credits: 3, color: '#f59e0b', createdAt: daysAgo(60) },
     { id: uuid(), name: 'English',          code: 'ENG-201',  instructor: 'Prof. Anderson',  credits: 3, color: '#ef4444', createdAt: daysAgo(60) },
   ],
+  // Upcoming milestones — dates are computed relative to "today" so the
+  // demo data always looks current whenever the script is re-run.
   events: [
     { id: uuid(), title: 'Mathematics Midterm',      date: new Date(Date.now() + 14 * 86400_000).toISOString().split('T')[0], type: 'exam',       course: 'Mathematics',      description: 'Covers chapters 1-7',             createdAt: daysAgo(20) },
     { id: uuid(), title: 'Physics Lab Report Due',   date: new Date(Date.now() +  4 * 86400_000).toISOString().split('T')[0], type: 'submission', course: 'Physics',          description: 'Wave optics experiment report',   createdAt: daysAgo(5)  },
@@ -185,6 +222,7 @@ const semester = {
     { id: uuid(), title: 'Spring Holiday',           date: new Date(Date.now() + 30 * 86400_000).toISOString().split('T')[0], type: 'holiday',    course: '',                 description: 'No classes for one week',         createdAt: daysAgo(30) },
     { id: uuid(), title: 'Chemistry Final Exam',     date: new Date(Date.now() + 45 * 86400_000).toISOString().split('T')[0], type: 'exam',       course: 'Chemistry',        description: 'Comprehensive final examination', createdAt: daysAgo(30) },
   ],
+  // Personal goals with a metric, target value, and current progress.
   goals: [
     { id: uuid(), title: 'Complete all assignments before deadlines', targetDate: new Date(Date.now() + 90 * 86400_000).toISOString().split('T')[0], metric: 'completion', targetValue: 100, currentValue: 35, achieved: false, createdAt: daysAgo(30) },
     { id: uuid(), title: 'Study at least 4 hours every weekday',      targetDate: new Date(Date.now() + 90 * 86400_000).toISOString().split('T')[0], metric: 'streak',     targetValue: 60,  currentValue: 12, achieved: false, createdAt: daysAgo(30) },
@@ -193,15 +231,21 @@ const semester = {
 };
 
 // ── Analytics (last 14 days) ──────────────────────────────
+// Simulated daily study statistics for the past two weeks. Values are
+// generated randomly each run; weekends get less study time on purpose.
 const analytics = {
+  // Build one entry per day for the last 14 days (oldest first).
   daily: Array.from({ length: 14 }, (_, i) => {
     const d = new Date(Date.now() - (13 - i) * 86400_000);
-    const dateStr = d.toISOString().split('T')[0];
-    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+    const dateStr = d.toISOString().split('T')[0]; // "YYYY-MM-DD"
+    const isWeekend = d.getDay() === 0 || d.getDay() === 6; // Sunday or Saturday
     return {
       date               : dateStr,
+      // Weekend: 30–90 min; weekday: 120–240 min of study.
       studyMinutes       : isWeekend ? Math.floor(Math.random() * 60 + 30)  : Math.floor(Math.random() * 120 + 120),
+      // 5–25 minutes lost to distractions every day.
       distractionMinutes : Math.floor(Math.random() * 20 + 5),
+      // Weekends get a single session; weekdays get 2–4.
       sessions           : isWeekend ? 1 : Math.floor(Math.random() * 3 + 2),
     };
   }),
@@ -211,6 +255,8 @@ const analytics = {
 };
 
 // ── User Profile ──────────────────────────────────────────
+// Default preferences shown in the settings screen (daily study goal,
+// Pomodoro timer lengths, favorite study time, and subject list).
 const userProfile = {
   name              : 'Student',
   studyGoalHours    : 6,
@@ -221,12 +267,17 @@ const userProfile = {
 };
 
 // ── AI Insights (initial) ─────────────────────────────────
+// The AI engine fills these in the first time the user runs an analysis.
 const aiInsights = {
   suggestions : [],
   lastAnalyzed: null,
 };
 
 // ── Write all files ───────────────────────────────────────
+/**
+ * Creates the data directory if it's missing, then writes each dataset
+ * to its own `<name>.json` file and prints a progress line per file.
+ */
 async function seed() {
   await fs.ensureDir(DATA_DIR);
   const files = {
@@ -240,6 +291,7 @@ async function seed() {
   };
 
   let written = 0;
+  // Write one pretty-printed JSON file per dataset key.
   for (const [key, data] of Object.entries(files)) {
     const filepath = path.join(DATA_DIR, `${key}.json`);
     await fs.writeJson(filepath, data, { spaces: 2 });
@@ -250,6 +302,8 @@ async function seed() {
   console.log(`\n[Seed] Done — ${written} files written to ${DATA_DIR}`);
 }
 
+// Run the seeding; if anything fails, log it but exit with code 0 so the
+// startup script (run.bat / run.sh) keeps going instead of halting.
 seed().catch(err => {
   console.error('[Seed] ERROR:', err.message);
   process.exit(0); // don't fail the startup chain
