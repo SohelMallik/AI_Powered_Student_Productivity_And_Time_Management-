@@ -1,6 +1,11 @@
 // ============================================================
 // Axios API Client
 // ============================================================
+// This file is the single place where the frontend talks to the
+// backend. It creates one shared Axios (HTTP) client and then
+// groups every endpoint by feature (tasks, notes, AI, ...). Pages
+// import these objects instead of building URLs by hand, so all
+// requests share the same base URL and cookie handling.
 import axios from 'axios';
 import type {
   Task, StudySession, ScheduleSlot, AnalyticsOverview,
@@ -10,13 +15,23 @@ import type {
   ApiResponse,
 } from '@/types';
 
+/**
+ * Shared Axios instance used for every request in the app.
+ * - baseURL '/api' means api.get('/tasks') actually calls '/api/tasks'
+ * - withCredentials sends session cookies so the server knows who is logged in
+ */
 const api = axios.create({
   baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
+  // Required so the browser includes the auth cookie with each request.
   withCredentials: true,
 });
 
 // ── Auth ─────────────────────────────────────────────────
+/**
+ * Signup / login / logout endpoints. After login the browser keeps
+ * a session cookie, so `me()` can ask the server who is logged in.
+ */
 export const authApi = {
   register: (data: { username: string; email?: string; password: string }) => api.post<ApiResponse<{ id: number; username: string; email: string }>>('/auth/register', data),
   login: (data: { username: string; password: string }) => api.post<ApiResponse<{ id: number; username: string; email: string }>>('/auth/login', data),
@@ -25,6 +40,11 @@ export const authApi = {
 };
 
 // ── Tasks ─────────────────────────────────────────────────
+/**
+ * Standard CRUD (plus "complete") for homework tasks.
+ * Each method maps one HTTP verb + URL: get all, get one, create
+ * (POST), update (PUT), mark complete (PATCH), and delete (DELETE).
+ */
 export const tasksApi = {
   getAll  : ()         => api.get<ApiResponse<Task[]>>('/tasks'),
   getById : (id: string)            => api.get<ApiResponse<Task>>(`/tasks/${id}`),
@@ -35,6 +55,7 @@ export const tasksApi = {
 };
 
 // ── Schedule ──────────────────────────────────────────────
+/** CRUD for weekly timetable slots (classes, study blocks, breaks). */
 export const scheduleApi = {
   getAll : ()                              => api.get<ApiResponse<ScheduleSlot[]>>('/schedule'),
   create : (data: Partial<ScheduleSlot>)   => api.post<ApiResponse<ScheduleSlot>>('/schedule', data),
@@ -43,6 +64,11 @@ export const scheduleApi = {
 };
 
 // ── Study Sessions ────────────────────────────────────────
+/**
+ * Study-session records: what you studied, for how long, and how
+ * distracted you were. Also exposes today's totals and a
+ * distraction analysis computed by the backend.
+ */
 export const studyApi = {
   getAll    : ()                               => api.get<ApiResponse<StudySession[]>>('/study-sessions'),
   getToday  : ()                               => api.get<ApiResponse<StudySession[]> & { totalMinutes: number }>('/study-sessions/today'),
@@ -52,6 +78,7 @@ export const studyApi = {
 };
 
 // ── Semester ──────────────────────────────────────────────
+/** Manage the semester plan: courses, calendar events, and goals. */
 export const semesterApi = {
   get         : ()                          => api.get('/semester'),
   addCourse   : (data: Partial<Course>)     => api.post<ApiResponse<Course>>('/semester/courses', data),
@@ -62,6 +89,7 @@ export const semesterApi = {
 };
 
 // ── Analytics ─────────────────────────────────────────────
+/** Aggregated stats for the Analytics page (overview, weekly logs, trends). */
 export const analyticsApi = {
   overview : ()  => api.get<ApiResponse<AnalyticsOverview>>('/analytics/overview'),
   weekly   : ()  => api.get<ApiResponse<DailyLog[]>>('/analytics/weekly'),
@@ -69,6 +97,11 @@ export const analyticsApi = {
 };
 
 // ── AI ────────────────────────────────────────────────────
+/**
+ * Endpoints backed by AI/analysis features: personalized insights,
+ * procrastination & distraction reports, time suggestions, and the
+ * user profile the AI tailors its advice to.
+ */
 export const aiApi = {
   insights          : ()                      => api.get('/ai/insights'),
   analyze           : ()                      => api.post('/ai/analyze'),
@@ -81,6 +114,7 @@ export const aiApi = {
 };
 
 // ── Notes ─────────────────────────────────────────────────
+/** CRUD for study notes, with search/filter params and a "pin" toggle. */
 export const notesApi = {
   getAll  : (params?: { course?: string; search?: string; pinned?: boolean }) =>
               api.get<ApiResponse<Note[]>>('/notes', { params }),
@@ -92,6 +126,11 @@ export const notesApi = {
 };
 
 // ── Flashcards ────────────────────────────────────────────
+/**
+ * Flashcard decks and cards. `reviewCard` tells the backend whether
+ * the answer was correct and how hard it felt, so card difficulty
+ * can be tracked over time.
+ */
 export const flashcardsApi = {
   getAll       : (params?: { course?: string }) => api.get<ApiResponse<FlashDeck[]>>('/flashcards', { params }),
   getDeck      : (deckId: string) => api.get<ApiResponse<FlashDeck>>(`/flashcards/${deckId}`),
@@ -103,4 +142,5 @@ export const flashcardsApi = {
   deleteCard   : (deckId: string, cardId: string) => api.delete<ApiResponse<void>>(`/flashcards/${deckId}/cards/${cardId}`),
 };
 
+// Default export so callers can also use the bare client when needed.
 export default api;
