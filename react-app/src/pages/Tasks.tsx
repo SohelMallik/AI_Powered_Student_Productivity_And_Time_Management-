@@ -1,5 +1,12 @@
 // ============================================================
 // Tasks Page (React/TypeScript)
+//
+// This page is a simple task manager for school work. The user
+// can add tasks (assignments, exams, projects, etc.) with a
+// deadline, course, and estimated hours, then mark them done,
+// edit, or delete them. Tasks can be filtered (pending, overdue,
+// done) and searched, and each card shows a colour-coded
+// priority level based on the task's priority score.
 // ============================================================
 import React, { useState, useEffect } from 'react';
 import { tasksApi } from '@/services/api';
@@ -7,10 +14,18 @@ import type { Task } from '@/types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
+// dayjs "relative time" plugin adds .fromNow(), used to show
+// deadlines as "due in 3 days" / "due 2 days ago".
 dayjs.extend(relativeTime);
 
+/** Formats an estimated-hours number as a short label like "~2h" for the task card. */
 function minutesToHM(h: number) { return `~${h}h`; }
 
+/**
+ * Maps a task's numeric priority score (0-100) to a colour-coded
+ * label: Critical (>=80), High (>=60), Medium (>=40), otherwise Low.
+ * Returns both the label text and the badge colours to use.
+ */
 function getPriority(score: number) {
   if (score >= 80) return { label: 'Critical', bg: '#fee2e2', color: '#b91c1c' };
   if (score >= 60) return { label: 'High',     bg: '#fef9c3', color: '#854d0e' };
@@ -18,54 +33,81 @@ function getPriority(score: number) {
   return               { label: 'Low',      bg: '#dcfce7', color: '#15803d' };
 }
 
+// The kinds of tasks the user can pick from in the form.
 type TaskType = 'assignment' | 'exam' | 'project' | 'reading' | 'other';
+// Blank form values (with sensible defaults), reused when creating a new task.
 const EMPTY_FORM: { title: string; description: string; deadline: string; course: string; type: TaskType; estimatedHours: number; weight: number } = {
   title:'', description:'', deadline:'', course:'', type:'assignment', estimatedHours:2, weight:5,
 };
 
+/**
+ * Tasks page component.
+ * Lists the user's tasks as cards, supports creating/editing/completing/
+ * deleting them, and lets the user filter and search the list.
+ */
 export default function Tasks() {
+  // All tasks fetched from the API.
   const [tasks,    setTasks]    = useState<Task[]>([]);
+  // True while tasks are being fetched from the server.
   const [loading,  setLoading]  = useState(true);
+  // Which filter tab is active: all, pending, overdue, or done.
   const [filter,   setFilter]   = useState<'all'|'pending'|'overdue'|'done'>('all');
+  // Text typed into the search box.
   const [search,   setSearch]   = useState('');
+  // Whether the add/edit form is visible.
   const [showForm, setShowForm] = useState(false);
+  // The task being edited, or null when creating a brand-new task.
   const [editing,  setEditing]  = useState<Task | null>(null);
+  // Current values typed into the task form fields.
   const [form,     setForm]     = useState(EMPTY_FORM);
+  // True while a save request is in flight, to disable the submit button.
   const [saving,   setSaving]   = useState(false);
 
+  /** Fetches all tasks from the API and refreshes the list. */
   const loadTasks = async () => {
     setLoading(true);
     try { const res = await tasksApi.getAll(); setTasks(res.data.data || []); }
     finally { setLoading(false); }
   };
 
+  // Load the task list once when the page first mounts.
   useEffect(() => { loadTasks(); }, []);
 
+  // Applies the active filter tab and the search text to decide
+  // which tasks are shown on the page.
   const filtered = tasks.filter(t => {
+    // "Pending" means not completed yet.
     if (filter === 'pending' && t.completed) return false;
+    // "Done" means completed.
     if (filter === 'done'    && !t.completed) return false;
+    // "Overdue" means not completed AND the deadline has already passed.
     if (filter === 'overdue' && (t.completed || new Date(t.deadline) >= new Date())) return false;
+    // If there's search text, only keep tasks whose title contains it (case-insensitive).
     if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
+  /** Marks a task as completed on the server and refreshes the list. */
   const handleComplete = async (id: string) => {
     await tasksApi.complete(id);
     await loadTasks();
   };
 
+  /** Asks for confirmation, then deletes a task and refreshes the list. */
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this task?')) return;
     await tasksApi.delete(id);
     await loadTasks();
   };
 
+  /** Opens the form in "create" mode with empty fields. */
   const openCreate = () => {
     setEditing(null);
     setForm(EMPTY_FORM);
     setShowForm(true);
   };
 
+  /** Opens the form in "edit" mode, pre-filled with the task's current values. */
   const openEdit = (task: Task) => {
     setEditing(task);
     setForm({
@@ -80,8 +122,9 @@ export default function Tasks() {
     setShowForm(true);
   };
 
+  /** Saves the form: updates the task being edited, or creates a new one. */
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // stop the browser from reloading the page on submit
     setSaving(true);
     try {
       if (editing) {
@@ -175,7 +218,9 @@ export default function Tasks() {
       {loading ? <div style={{ textAlign: 'center', padding: 48 }}><div className="spinner" /></div> : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 16 }}>
           {filtered.map(task => {
+            // Colour-coded priority badge for this task.
             const p    = getPriority(task.priority || 0);
+            // "Late" = the deadline has passed and the task is still not completed.
             const late = new Date(task.deadline) < new Date() && !task.completed;
             return (
               <div key={task.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 18, opacity: task.completed ? .65 : 1 }}>
@@ -184,6 +229,7 @@ export default function Tasks() {
                     <span style={{ padding: '2px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: p.bg, color: p.color }}>{p.label}</span>
                     <span style={{ padding: '2px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: '#f1f5f9', color: '#475569' }}>{task.type}</span>
                   </div>
+                  {/* Action buttons: complete/edit for open tasks, delete for any task */}
                   <div style={{ display: 'flex', gap: 4 }}>
                     {!task.completed && <button onClick={() => handleComplete(task.id)}
                       style={{ padding: '4px 10px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>✓</button>}
