@@ -1,28 +1,53 @@
 // ============================================================
 // Settings Page – profile, pomodoro, preferences, dark mode
 // ============================================================
+//
+// This page shows the user's settings in a set of cards: their profile
+// (name, preferred study time, daily goal), Pomodoro timer lengths,
+// their subject list, and a dark mode toggle. Everything is loaded from
+// the API on open and saved back to the API when the user hits Save.
+// Dark mode is stored in localStorage so it survives page reloads.
+//
 import React, { useEffect, useState } from 'react';
 import { aiApi } from '@/services/api';
 import type { UserProfile } from '@/types';
 
+/** Shared style so every text input on this page looks the same. */
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0',
   borderRadius: 8, fontSize: 14, fontFamily: 'inherit', background: '#fff', boxSizing: 'border-box',
 };
 
+/** Shared style so every field label on this page looks the same. */
 const labelStyle: React.CSSProperties = {
   fontSize: 12, fontWeight: 700, display: 'block', marginBottom: 5, color: '#374151',
 };
 
+/**
+ * Settings page component.
+ * Loads the user's profile from the API into an editable form, then
+ * lets them change their name, study preferences, Pomodoro timer
+ * lengths, subjects, and the dark/light theme, and save it all back.
+ */
 export default function Settings() {
+  // The last profile received from the API (kept for reference after a
+  // save); the underscore marks it as not rendered directly.
   const [_profile, setProfile] = useState<UserProfile | null>(null);
+  // An editable copy of the profile shown in the form; null until loaded.
   const [form,     setForm]    = useState<UserProfile | null>(null);
+  // True while the save request is running, to disable the save button.
   const [saving,  setSaving]  = useState(false);
+  // True for a few seconds after a successful save, to show "✓ Saved".
   const [saved,   setSaved]   = useState(false);
+  // Dark mode is read once from localStorage so the choice survives
+  // reloads. The initializer function runs only on the first render,
+  // and try/catch guards against corrupted JSON in storage.
   const [darkMode, setDarkMode] = useState(() => {
     try { return JSON.parse(localStorage.getItem('studyai-dark') || 'false'); } catch { return false; }
   });
 
+  // Load the user's profile once when the page opens and fill the form
+  // with it. Errors (e.g. network issues) are silently ignored.
   useEffect(() => {
     aiApi.getProfile().then(res => {
       const p = res.data.data;
@@ -31,12 +56,19 @@ export default function Settings() {
     }).catch(() => {});
   }, []);
 
-  // Apply dark mode to document
+  // Apply dark mode: sets the data-theme attribute on <html>, which the
+  // CSS uses to switch between dark and light colors, and saves the
+  // choice to localStorage. Runs again whenever darkMode changes.
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
     localStorage.setItem('studyai-dark', JSON.stringify(darkMode));
   }, [darkMode]);
 
+  /**
+   * Saves the form to the API as the user's profile, updates the stored
+   * profile with the response, and shows a "✓ Saved successfully!"
+   * message that hides itself after 3 seconds.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form) return;
@@ -46,14 +78,22 @@ export default function Settings() {
       const res = await aiApi.updateProfile(form);
       setProfile(res.data.data);
       setSaved(true);
+      // Hide the success message again after 3 seconds (3000 ms).
       setTimeout(() => setSaved(false), 3000);
     } finally { setSaving(false); }
   };
 
+  // While the profile is still loading (form is null), show a spinner
+  // instead of the settings form.
   if (!form) {
     return <div style={{ textAlign: 'center', padding: 48 }}><div className="spinner" /></div>;
   }
 
+  /**
+   * Small helper component that wraps one settings group in a white
+   * rounded card with an emoji icon and a title (e.g. "👤 Profile").
+   * The `children` prop holds the inputs shown inside the card.
+   */
   const Section = ({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) => (
     <div style={{ background: '#fff', border: '1.5px solid #e0e7ff', borderRadius: 18, padding: 24, marginBottom: 20 }}>
       <div style={{ fontWeight: 800, fontSize: 16, color: '#1a202c', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -124,6 +164,7 @@ export default function Settings() {
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 22, fontWeight: 900, color: '#f59e0b' }}>
+                {/* 4 full work+break cycles, converted from minutes to hours */}
                 {((form.pomodoroWork + form.pomodoroBreak) * 4 / 60).toFixed(1)}h
               </div>
               <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>4 CYCLES</div>
@@ -133,6 +174,10 @@ export default function Settings() {
 
         {/* Subjects */}
         <Section title="Subjects" icon="📚">
+          {/* Subjects are stored as an array: join them into one comma-
+              separated string for the input, and split the string back
+              into an array (trimmed, empty entries removed) as the user
+              types. */}
           <label style={labelStyle}>Your Subjects (comma separated)</label>
           <input style={inputStyle}
             value={(form.subjects || []).join(', ')}
